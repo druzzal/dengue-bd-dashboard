@@ -362,6 +362,24 @@ def sanity_check(doc):
     return problems
 
 
+def unchanged_since_last_run(doc, latest_path):
+    """True if only `fetched_at` differs from what is already published.
+
+    Every run stamps a new `fetched_at`, so a naive file comparison always
+    reports a difference and CI would commit on every schedule tick. Compare
+    the payload itself instead, so history records DGHS updates and nothing else.
+    """
+    if not os.path.exists(latest_path):
+        return False
+    try:
+        with open(latest_path, encoding="utf-8") as fh:
+            previous = json.load(fh)
+    except (ValueError, OSError):
+        return False
+    return {k: v for k, v in doc.items() if k != "fetched_at"} == \
+           {k: v for k, v in previous.items() if k != "fetched_at"}
+
+
 def write_json(path, payload):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as fh:
@@ -387,7 +405,12 @@ def main():
         if not os.environ.get("DENGUE_FORCE_WRITE"):
             raise SystemExit(1)
 
-    write_json(os.path.join(data_dir, "latest.json"), doc)
+    latest_path = os.path.join(data_dir, "latest.json")
+    if unchanged_since_last_run(doc, latest_path):
+        print(f"no change: DGHS figures for {doc['meta']['last_updated']} already published")
+        return
+
+    write_json(latest_path, doc)
 
     # Compact feed for lightweight app polling.
     summary_doc = {
