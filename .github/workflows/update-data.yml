@@ -1,0 +1,45 @@
+name: Update dengue data
+
+on:
+  schedule:
+    # DGHS publishes the daily press release around 14:30 Bangladesh time (08:30 UTC).
+    # Run every 3 hours so a late or re-issued update is picked up the same day.
+    - cron: '0 */3 * * *'
+  workflow_dispatch:        # lets you trigger a refresh by hand from the Actions tab
+  push:
+    branches: [main]
+    paths:
+      - 'scraper/**'
+      - '.github/workflows/update-data.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-dengue-data
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Scrape DGHS dashboard
+        run: python scraper/scrape.py
+
+      - name: Commit updated data
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data
+          if git diff --staged --quiet; then
+            echo "No change in published figures."
+          else
+            git commit -m "data: DGHS dengue update $(date -u '+%Y-%m-%d %H:%M UTC')"
+            git push
+          fi

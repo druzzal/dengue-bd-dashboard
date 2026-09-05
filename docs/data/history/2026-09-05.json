@@ -1,0 +1,2974 @@
+{
+ "schema_version": 1,
+ "fetched_at": "2026-09-05T18:43:26Z",
+ "meta": {
+  "source_url": "https://dashboard.dghs.gov.bd/pages/heoc_dengue_v1.php",
+  "source_name": "DGHS Health Emergency Operation Center & Control Room",
+  "last_updated_label": "05-Sep-2026",
+  "last_updated": "2026-09-05",
+  "year": 2026
+ },
+ "summary": {
+  "epi_week": "W35",
+  "week_cases": 7446,
+  "week_deaths": 23,
+  "ytd_cases": 41032,
+  "ytd_deaths": 113,
+  "last24_cases": 988,
+  "last24_deaths": 2,
+  "discharged_last24": 986,
+  "discharged_ytd": 38179
+ },
+ "charts": {
+  "affected_case_last_24_hour": {
+   "title": "Dengue cases of last 24 hours",
+   "categories": [
+    ""
+   ],
+   "series": [
+    {
+     "name": "Admitted",
+     "type": "column",
+     "data": [
+      988
+     ]
+    }
+   ]
+  },
+  "death_case_last_24_hour": {
+   "title": "Dengue death of last 24 hours",
+   "categories": [
+    ""
+   ],
+   "series": [
+    {
+     "name": "Death",
+     "type": "column",
+     "data": [
+      2
+     ]
+    }
+   ]
+  },
+  "div_city_cor_case_last_24_hour": {
+   "title": "Division & City corporation cases of last 24 hours",
+   "categories": [
+    "Barishal Division",
+    "Chattogram Division",
+    "Dhaka Division (Out of CC)",
+    "DNCC",
+    "DSCC",
+    "Khulna Division",
+    "Mymensingh Division",
+    "Rajshahi Division",
+    "Rangpur Division"
+   ],
+   "series": [
+    {
+     "name": "Admitted",
+     "type": "column",
+     "data": [
+      170,
+      123,
+      176,
+      102,
+      149,
+      163,
+      50,
+      49,
+      6
+     ]
+    }
+   ]
+  },
+  "div_city_cor_death_last_24_hour": {
+   "title": "Division & City corporation deaths of last 24 hours",
+   "categories": [
+    "DSCC"
+   ],
+   "series": [
+    {
+     "name": "Death",
+     "type": "column",
+     "data": [
+      2
+     ]
+    }
+   ]
+  },
+  "dengue_affected_by_gender_24": {
+   "title": "Gender distribution of affected cases of last 24 hours",
+   "categories": [],
+   "series": [
+    {
+     "name": "Brands",
+     "type": null,
+     "data": [
+      {
+       "name": "Male",
+       "y": 611
+      },
+      {
+       "name": "Female",
+       "y": 377
+      }
+     ]
+    }
+   ]
+  },
+  "dengue_discharged_total_and_24_hours": {
+   "title": "Discharged",
+   "categories": [
+    ""
+   ],
+   "series": [
+    {
+     "name": "DISCHARGED for last 24 hours",
+     "type": "column",
+     "data": [
+      986
+     ]
+    },
+    {
+     "name": "DISCHARGED from 1 January to Till date",
+     "type": "column",
+     "data": [
+      38179
+     ]
+    }
+   ]
+  },
+  "affected_case_in_year": {
+   "title": "Total Dengue cases from 1 January to Till date",
+   "categories": [
+    ""
+   ],
+   "series": [
+    {
+     "name": "Admitted",
+     "type": "column",
+     "data": [
+      41032
+     ]
+    }
+   ]
+  },
+  "death_case_in_year": {
+   "title": "Total Dengue deaths from 1 January to till date",
+   "categories": [
+    ""
+   ],
+   "series": [
+    {
+     "name": "Death",
+     "type": "column",
+     "data": [
+      113
+     ]
+    }
+   ]
+  },
+  "div_city_cor_case_in_year": {
+   "title": "Division & City corporation wise reported cases from 1 January to till date",
+   "categories": [
+    "Barishal",
+    "Chattogram",
+    "Dhaka (Out of CC)",
+    "DNCC",
+    "DSCC",
+    "Khulna",
+    "Mymensingh",
+    "Rajshahi",
+    "Rangpur",
+    "Sylhet"
+   ],
+   "series": [
+    {
+     "name": "Admitted",
+     "type": "column",
+     "data": [
+      6379,
+      6178,
+      6017,
+      4895,
+      5400,
+      6487,
+      2257,
+      2230,
+      1005,
+      184
+     ]
+    }
+   ]
+  },
+  "div_city_cor_death_in_year": {
+   "title": "Division & City corporation wise deaths from 1 January to till date",
+   "categories": [
+    "Barishal",
+    "Chattogram",
+    "Dhaka (Out of CC)",
+    "DNCC",
+    "DSCC",
+    "Khulna",
+    "Mymensingh",
+    "Rajshahi",
+    "Rangpur",
+    "Sylhet"
+   ],
+   "series": [
+    {
+     "name": "Death",
+     "type": "column",
+     "data": [
+      10,
+      8,
+      3,
+      16,
+      39,
+      19,
+      12,
+      4,
+      1,
+      1
+     ]
+    }
+   ]
+  },
+  "monthly_case_and_death_in_year": {
+   "title": "Monthly Dengue cases by Month",
+   "categories": [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September"
+   ],
+   "series": [
+    {
+     "name": "Affected (Admitted)",
+     "type": "column",
+     "data": [
+      1081,
+      409,
+      353,
+      640,
+      714,
+      2907,
+      9206,
+      20536,
+      5186
+     ]
+    }
+   ]
+  },
+  "monthly_case_and_death_only_in_year": {
+   "title": "Monthly Dengue confirmed deaths by Month",
+   "categories": [
+    "January",
+    "February",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September"
+   ],
+   "series": [
+    {
+     "name": "Death",
+     "type": "column",
+     "data": [
+      2,
+      2,
+      1,
+      13,
+      36,
+      43,
+      16
+     ]
+    }
+   ]
+  },
+  "division_case": {
+   "title": "Distribution of Dengue affected (Admitted) by Division in 2026",
+   "categories": [
+    "Dhaka",
+    "Khulna",
+    "Barishal",
+    "Chattogram",
+    "Mymensingh",
+    "Rajshahi",
+    "Rangpur",
+    "Sylhet",
+    "DSCC",
+    "Raishahi",
+    "DNCC"
+   ],
+   "series": [
+    {
+     "name": "Affected by Division",
+     "type": "column",
+     "data": [
+      16307,
+      6487,
+      6376,
+      6177,
+      2257,
+      2230,
+      1005,
+      184,
+      5,
+      3,
+      1
+     ]
+    }
+   ]
+  },
+  "division_death": {
+   "title": "Distribution of Dengue death by division in 2026",
+   "categories": [
+    "Dhaka",
+    "Khulna",
+    "Mymensingh",
+    "Barishal",
+    "Chattogram",
+    "Rajshahi",
+    "Sylhet",
+    "Rangpur",
+    "Raishahi",
+    "DNCC",
+    "DSCC"
+   ],
+   "series": [
+    {
+     "name": "Death by Division",
+     "type": "column",
+     "data": [
+      58,
+      19,
+      12,
+      10,
+      8,
+      4,
+      1,
+      1,
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  "confirmed_case": {
+   "title": "Dengue affected (Admitted) by date",
+   "categories": [
+    "01-Jan-26",
+    "02-Jan-26",
+    "03-Jan-26",
+    "04-Jan-26",
+    "05-Jan-26",
+    "06-Jan-26",
+    "07-Jan-26",
+    "08-Jan-26",
+    "09-Jan-26",
+    "10-Jan-26",
+    "11-Jan-26",
+    "12-Jan-26",
+    "13-Jan-26",
+    "14-Jan-26",
+    "15-Jan-26",
+    "16-Jan-26",
+    "17-Jan-26",
+    "18-Jan-26",
+    "19-Jan-26",
+    "20-Jan-26",
+    "21-Jan-26",
+    "22-Jan-26",
+    "23-Jan-26",
+    "24-Jan-26",
+    "25-Jan-26",
+    "26-Jan-26",
+    "27-Jan-26",
+    "28-Jan-26",
+    "29-Jan-26",
+    "30-Jan-26",
+    "31-Jan-26",
+    "01-Feb-26",
+    "02-Feb-26",
+    "03-Feb-26",
+    "04-Feb-26",
+    "05-Feb-26",
+    "06-Feb-26",
+    "07-Feb-26",
+    "08-Feb-26",
+    "09-Feb-26",
+    "10-Feb-26",
+    "11-Feb-26",
+    "12-Feb-26",
+    "13-Feb-26",
+    "14-Feb-26",
+    "15-Feb-26",
+    "16-Feb-26",
+    "17-Feb-26",
+    "18-Feb-26",
+    "19-Feb-26",
+    "20-Feb-26",
+    "21-Feb-26",
+    "22-Feb-26",
+    "23-Feb-26",
+    "24-Feb-26",
+    "25-Feb-26",
+    "26-Feb-26",
+    "27-Feb-26",
+    "28-Feb-26",
+    "01-Mar-26",
+    "02-Mar-26",
+    "03-Mar-26",
+    "04-Mar-26",
+    "05-Mar-26",
+    "06-Mar-26",
+    "07-Mar-26",
+    "08-Mar-26",
+    "09-Mar-26",
+    "10-Mar-26",
+    "11-Mar-26",
+    "12-Mar-26",
+    "13-Mar-26",
+    "14-Mar-26",
+    "15-Mar-26",
+    "16-Mar-26",
+    "17-Mar-26",
+    "18-Mar-26",
+    "19-Mar-26",
+    "20-Mar-26",
+    "21-Mar-26",
+    "22-Mar-26",
+    "23-Mar-26",
+    "24-Mar-26",
+    "25-Mar-26",
+    "26-Mar-26",
+    "27-Mar-26",
+    "28-Mar-26",
+    "29-Mar-26",
+    "30-Mar-26",
+    "31-Mar-26",
+    "01-Apr-26",
+    "02-Apr-26",
+    "03-Apr-26",
+    "04-Apr-26",
+    "05-Apr-26",
+    "06-Apr-26",
+    "07-Apr-26",
+    "08-Apr-26",
+    "09-Apr-26",
+    "10-Apr-26",
+    "11-Apr-26",
+    "12-Apr-26",
+    "13-Apr-26",
+    "14-Apr-26",
+    "15-Apr-26",
+    "16-Apr-26",
+    "17-Apr-26",
+    "18-Apr-26",
+    "19-Apr-26",
+    "20-Apr-26",
+    "21-Apr-26",
+    "22-Apr-26",
+    "23-Apr-26",
+    "24-Apr-26",
+    "25-Apr-26",
+    "26-Apr-26",
+    "27-Apr-26",
+    "28-Apr-26",
+    "29-Apr-26",
+    "30-Apr-26",
+    "01-May-26",
+    "02-May-26",
+    "03-May-26",
+    "04-May-26",
+    "05-May-26",
+    "06-May-26",
+    "07-May-26",
+    "08-May-26",
+    "09-May-26",
+    "10-May-26",
+    "11-May-26",
+    "12-May-26",
+    "13-May-26",
+    "14-May-26",
+    "15-May-26",
+    "16-May-26",
+    "17-May-26",
+    "18-May-26",
+    "19-May-26",
+    "20-May-26",
+    "21-May-26",
+    "22-May-26",
+    "23-May-26",
+    "24-May-26",
+    "25-May-26",
+    "26-May-26",
+    "27-May-26",
+    "28-May-26",
+    "29-May-26",
+    "30-May-26",
+    "31-May-26",
+    "01-Jun-26",
+    "02-Jun-26",
+    "03-Jun-26",
+    "04-Jun-26",
+    "05-Jun-26",
+    "06-Jun-26",
+    "07-Jun-26",
+    "08-Jun-26",
+    "09-Jun-26",
+    "10-Jun-26",
+    "11-Jun-26",
+    "12-Jun-26",
+    "13-Jun-26",
+    "14-Jun-26",
+    "15-Jun-26",
+    "16-Jun-26",
+    "17-Jun-26",
+    "18-Jun-26",
+    "19-Jun-26",
+    "20-Jun-26",
+    "21-Jun-26",
+    "22-Jun-26",
+    "23-Jun-26",
+    "24-Jun-26",
+    "25-Jun-26",
+    "26-Jun-26",
+    "27-Jun-26",
+    "28-Jun-26",
+    "29-Jun-26",
+    "30-Jun-26",
+    "01-Jul-26",
+    "02-Jul-26",
+    "03-Jul-26",
+    "04-Jul-26",
+    "05-Jul-26",
+    "06-Jul-26",
+    "07-Jul-26",
+    "08-Jul-26",
+    "09-Jul-26",
+    "10-Jul-26",
+    "11-Jul-26",
+    "12-Jul-26",
+    "13-Jul-26",
+    "14-Jul-26",
+    "15-Jul-26",
+    "16-Jul-26",
+    "17-Jul-26",
+    "18-Jul-26",
+    "19-Jul-26",
+    "20-Jul-26",
+    "21-Jul-26",
+    "22-Jul-26",
+    "23-Jul-26",
+    "24-Jul-26",
+    "25-Jul-26",
+    "26-Jul-26",
+    "27-Jul-26",
+    "28-Jul-26",
+    "29-Jul-26",
+    "30-Jul-26",
+    "31-Jul-26",
+    "01-Aug-26",
+    "02-Aug-26",
+    "03-Aug-26",
+    "04-Aug-26",
+    "05-Aug-26",
+    "06-Aug-26",
+    "07-Aug-26",
+    "08-Aug-26",
+    "09-Aug-26",
+    "10-Aug-26",
+    "11-Aug-26",
+    "12-Aug-26",
+    "13-Aug-26",
+    "14-Aug-26",
+    "15-Aug-26",
+    "16-Aug-26",
+    "17-Aug-26",
+    "18-Aug-26",
+    "19-Aug-26",
+    "20-Aug-26",
+    "21-Aug-26",
+    "22-Aug-26",
+    "23-Aug-26",
+    "24-Aug-26",
+    "25-Aug-26",
+    "26-Aug-26",
+    "27-Aug-26",
+    "28-Aug-26",
+    "29-Aug-26",
+    "30-Aug-26",
+    "31-Aug-26",
+    "01-Sep-26",
+    "02-Sep-26",
+    "03-Sep-26",
+    "04-Sep-26",
+    "05-Sep-26"
+   ],
+   "series": [
+    {
+     "name": "Affected (Admitted) by date",
+     "type": "column",
+     "data": [
+      76,
+      63,
+      53,
+      69,
+      68,
+      55,
+      46,
+      35,
+      29,
+      31,
+      52,
+      33,
+      36,
+      35,
+      34,
+      12,
+      18,
+      35,
+      29,
+      26,
+      39,
+      19,
+      11,
+      24,
+      31,
+      22,
+      19,
+      25,
+      25,
+      14,
+      17,
+      14,
+      18,
+      17,
+      12,
+      16,
+      10,
+      14,
+      21,
+      23,
+      17,
+      9,
+      8,
+      6,
+      12,
+      31,
+      38,
+      14,
+      14,
+      16,
+      7,
+      12,
+      22,
+      7,
+      12,
+      14,
+      9,
+      7,
+      9,
+      10,
+      11,
+      12,
+      9,
+      10,
+      6,
+      14,
+      9,
+      11,
+      8,
+      9,
+      17,
+      6,
+      8,
+      24,
+      14,
+      4,
+      5,
+      9,
+      5,
+      5,
+      7,
+      7,
+      7,
+      9,
+      8,
+      7,
+      11,
+      41,
+      23,
+      27,
+      25,
+      25,
+      7,
+      10,
+      30,
+      43,
+      16,
+      20,
+      13,
+      13,
+      13,
+      13,
+      24,
+      14,
+      44,
+      31,
+      13,
+      17,
+      34,
+      16,
+      25,
+      25,
+      31,
+      13,
+      17,
+      28,
+      25,
+      21,
+      14,
+      20,
+      8,
+      9,
+      19,
+      16,
+      25,
+      28,
+      25,
+      12,
+      28,
+      35,
+      29,
+      37,
+      27,
+      29,
+      10,
+      16,
+      67,
+      28,
+      32,
+      33,
+      21,
+      11,
+      19,
+      23,
+      22,
+      14,
+      14,
+      10,
+      14,
+      29,
+      24,
+      110,
+      77,
+      75,
+      91,
+      23,
+      31,
+      107,
+      65,
+      68,
+      73,
+      95,
+      19,
+      35,
+      135,
+      98,
+      113,
+      87,
+      101,
+      20,
+      60,
+      220,
+      139,
+      121,
+      157,
+      198,
+      31,
+      82,
+      172,
+      124,
+      180,
+      163,
+      147,
+      44,
+      139,
+      274,
+      239,
+      196,
+      251,
+      190,
+      68,
+      158,
+      350,
+      327,
+      329,
+      391,
+      306,
+      94,
+      242,
+      473,
+      372,
+      338,
+      375,
+      450,
+      181,
+      439,
+      458,
+      546,
+      512,
+      534,
+      467,
+      153,
+      371,
+      423,
+      580,
+      530,
+      195,
+      471,
+      249,
+      544,
+      672,
+      726,
+      756,
+      723,
+      693,
+      200,
+      730,
+      805,
+      870,
+      753,
+      671,
+      750,
+      366,
+      702,
+      839,
+      994,
+      907,
+      550,
+      868,
+      342,
+      996,
+      1097,
+      1163,
+      1324,
+      1110,
+      1252,
+      512,
+      988
+     ]
+    }
+   ]
+  },
+  "by_week_case": {
+   "title": "Dengue affected (Admitted) by EPI (Epidemiological) Week",
+   "categories": [
+    "",
+    "W01",
+    "W02",
+    "W03",
+    "W04",
+    "W05",
+    "W06",
+    "W07",
+    "W08",
+    "W09",
+    "W10",
+    "W11",
+    "W12",
+    "W13",
+    "W14",
+    "W15",
+    "W16",
+    "W17",
+    "W18",
+    "W19",
+    "W20",
+    "W21",
+    "W22",
+    "W23",
+    "W24",
+    "W25",
+    "W26",
+    "W27",
+    "W28",
+    "W29",
+    "W30",
+    "W31",
+    "W32",
+    "W33",
+    "W34",
+    "W35",
+    "W36",
+    "W37",
+    "W38",
+    "W39",
+    "W40",
+    "W41",
+    "W42",
+    "W43",
+    "W44",
+    "W45",
+    "W46",
+    "W47",
+    "W48",
+    "W49",
+    "W50",
+    "W51",
+    "W52"
+   ],
+   "series": [
+    {
+     "name": "Affected (Admitted) by Week in 2024",
+     "type": "line",
+     "data": [
+      2,
+      362,
+      267,
+      189,
+      160,
+      112,
+      117,
+      61,
+      59,
+      77,
+      65,
+      65,
+      83,
+      64,
+      72,
+      67,
+      146,
+      157,
+      135,
+      153,
+      180,
+      151,
+      124,
+      162,
+      176,
+      136,
+      264,
+      285,
+      519,
+      402,
+      683,
+      1255,
+      1016,
+      1450,
+      1742,
+      1882,
+      2366,
+      3382,
+      4519,
+      5458,
+      6801,
+      6443,
+      6772,
+      7081,
+      7502,
+      7891,
+      7539,
+      7116,
+      5756,
+      4163,
+      2872,
+      1525,
+      1185
+     ]
+    },
+    {
+     "name": "Affected (Admitted) by Week in 2023",
+     "type": "line",
+     "data": [
+      0,
+      105,
+      56,
+      51,
+      26,
+      30,
+      25,
+      22,
+      14,
+      14,
+      21,
+      16,
+      14,
+      19,
+      21,
+      20,
+      8,
+      37,
+      82,
+      120,
+      140,
+      247,
+      515,
+      687,
+      1299,
+      1755,
+      877,
+      2386,
+      6779,
+      11298,
+      15794,
+      17625,
+      18622,
+      15433,
+      14395,
+      15591,
+      17739,
+      19315,
+      20244,
+      18785,
+      17506,
+      16508,
+      15827,
+      12953,
+      12005,
+      12356,
+      9957,
+      7284,
+      5802,
+      3832,
+      2235,
+      1305,
+      811
+     ]
+    },
+    {
+     "name": "Affected (Admitted) by Week in 2025",
+     "type": "line",
+     "data": [
+      4,
+      0,
+      221,
+      352,
+      258,
+      190,
+      149,
+      88,
+      127,
+      99,
+      70,
+      44,
+      117,
+      96,
+      56,
+      35,
+      172,
+      153,
+      238,
+      189,
+      318,
+      394,
+      491,
+      488,
+      585,
+      809,
+      1690,
+      2053,
+      2470,
+      2506,
+      754,
+      3906,
+      2207,
+      2408,
+      2177,
+      2290,
+      2706,
+      2923,
+      3375,
+      685,
+      3196,
+      4115,
+      3656,
+      4741,
+      5293,
+      5398,
+      6216,
+      6835,
+      6510,
+      5628,
+      4280,
+      3552,
+      2777,
+      1507,
+      851,
+      413
+     ]
+    }
+   ]
+  },
+  "death_case": {
+   "title": "Death by date in 2026",
+   "categories": [
+    "12-Jan-26",
+    "19-Jan-26",
+    "02-Feb-26",
+    "09-Feb-26",
+    "10-May-26",
+    "01-Jun-26",
+    "16-Jun-26",
+    "21-Jun-26",
+    "22-Jun-26",
+    "24-Jun-26",
+    "25-Jun-26",
+    "29-Jun-26",
+    "01-Jul-26",
+    "08-Jul-26",
+    "09-Jul-26",
+    "12-Jul-26",
+    "13-Jul-26",
+    "14-Jul-26",
+    "15-Jul-26",
+    "16-Jul-26",
+    "18-Jul-26",
+    "19-Jul-26",
+    "20-Jul-26",
+    "21-Jul-26",
+    "23-Jul-26",
+    "25-Jul-26",
+    "26-Jul-26",
+    "27-Jul-26",
+    "28-Jul-26",
+    "29-Jul-26",
+    "30-Jul-26",
+    "31-Jul-26",
+    "02-Aug-26",
+    "03-Aug-26",
+    "09-Aug-26",
+    "12-Aug-26",
+    "13-Aug-26",
+    "15-Aug-26",
+    "16-Aug-26",
+    "17-Aug-26",
+    "18-Aug-26",
+    "19-Aug-26",
+    "20-Aug-26",
+    "23-Aug-26",
+    "24-Aug-26",
+    "25-Aug-26",
+    "29-Aug-26",
+    "30-Aug-26",
+    "31-Aug-26",
+    "01-Sep-26",
+    "02-Sep-26",
+    "03-Sep-26",
+    "05-Sep-26"
+   ],
+   "series": [
+    {
+     "name": "Death by date",
+     "type": "column",
+     "data": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      2,
+      1,
+      2,
+      1,
+      5,
+      1,
+      3,
+      2,
+      1,
+      2,
+      1,
+      2,
+      2,
+      1,
+      1,
+      3,
+      1,
+      1,
+      1,
+      3,
+      1,
+      3,
+      3,
+      3,
+      1,
+      2,
+      3,
+      2,
+      2,
+      2,
+      2,
+      3,
+      1,
+      3,
+      2,
+      1,
+      5,
+      3,
+      3,
+      2,
+      3,
+      4,
+      5,
+      5,
+      4,
+      2
+     ]
+    }
+   ]
+  },
+  "by_month_case": {
+   "title": "Dengue affected (Admitted) by Month",
+   "categories": [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+   ],
+   "series": [
+    {
+     "name": "Affected (Admitted) by Month  in 2024",
+     "type": "line",
+     "data": [
+      1052,
+      339,
+      311,
+      504,
+      644,
+      798,
+      2669,
+      6521,
+      18097,
+      30879,
+      29652,
+      9745
+     ]
+    },
+    {
+     "name": "Affected (Admitted) by Month in 2023",
+     "type": "line",
+     "data": [
+      253,
+      81,
+      76,
+      95,
+      855,
+      4665,
+      41891,
+      72318,
+      79994,
+      68128,
+      40990,
+      9371
+     ]
+    },
+    {
+     "name": "Affected (Admitted) by Month in 2025",
+     "type": "line",
+     "data": [
+      6,
+      1161,
+      374,
+      336,
+      701,
+      1773,
+      5949,
+      10684,
+      10496,
+      15862,
+      22520,
+      24535,
+      8464
+     ]
+    }
+   ]
+  },
+  "year_case": {
+   "title": "Dengue affected (Admitted) by year",
+   "categories": [
+    "2018",
+    "2019",
+    "2020",
+    "2021",
+    "2022",
+    "2023",
+    "2024",
+    "2025",
+    "2026"
+   ],
+   "series": [
+    {
+     "name": "Affected",
+     "type": "column",
+     "data": [
+      10148,
+      101354,
+      1405,
+      28429,
+      62382,
+      321017,
+      101211,
+      102861,
+      41032
+     ]
+    }
+   ]
+  },
+  "dengue_affected_by_age_group": {
+   "title": "Dengue affected (Admitted) by age group in 2026",
+   "categories": [],
+   "series": [
+    {
+     "name": "Male",
+     "type": null,
+     "data": [
+      -1178,
+      -1164,
+      -1666,
+      -3618,
+      -3855,
+      -3816,
+      -2392,
+      -2155,
+      -1513,
+      -1,
+      -1277,
+      0,
+      -866,
+      -749,
+      -478,
+      -320,
+      -159,
+      -92,
+      -67
+     ]
+    },
+    {
+     "name": "Female",
+     "type": null,
+     "data": [
+      924,
+      933,
+      942,
+      1906,
+      1972,
+      2034,
+      1616,
+      1460,
+      1074,
+      1,
+      907,
+      1,
+      544,
+      520,
+      318,
+      183,
+      63,
+      44,
+      26
+     ]
+    }
+   ]
+  },
+  "percentage_of_dengue_affected_by_age_group": {
+   "title": "Percentage of Dengue affected (Admitted) by age group in 2026",
+   "categories": [],
+   "series": [
+    {
+     "name": "Male",
+     "type": null,
+     "data": [
+      -2,
+      -2,
+      -4,
+      -8,
+      -9,
+      -9,
+      -5,
+      -5,
+      -3,
+      0,
+      -3,
+      0,
+      -2,
+      -1,
+      -1,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "Female",
+     "type": null,
+     "data": [
+      2,
+      2,
+      2,
+      4,
+      4,
+      4,
+      3,
+      3,
+      2,
+      0,
+      2,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  "dengue_death_by_age_group": {
+   "title": "Death by age group in 2026",
+   "categories": [],
+   "series": [
+    {
+     "name": "Male",
+     "type": null,
+     "data": [
+      -2,
+      -2,
+      -4,
+      -2,
+      -2,
+      -8,
+      -3,
+      -6,
+      -1,
+      -4,
+      -6,
+      -3,
+      -4,
+      -1,
+      -3
+     ]
+    },
+    {
+     "name": "Female",
+     "type": null,
+     "data": [
+      2,
+      1,
+      2,
+      3,
+      6,
+      8,
+      8,
+      8,
+      4,
+      9,
+      4,
+      2,
+      4,
+      0,
+      1
+     ]
+    }
+   ]
+  },
+  "percentage_of_dengue_death_by_age_group": {
+   "title": "Percentage of death by age group in 2026",
+   "categories": [],
+   "series": [
+    {
+     "name": "Male",
+     "type": null,
+     "data": [
+      -1,
+      -1,
+      -3,
+      -1,
+      -1,
+      -7,
+      -2,
+      -5,
+      0,
+      -3,
+      -5,
+      -2,
+      -3,
+      0,
+      -2
+     ]
+    },
+    {
+     "name": "Female",
+     "type": null,
+     "data": [
+      1,
+      0,
+      1,
+      2,
+      5,
+      7,
+      7,
+      7,
+      3,
+      7,
+      3,
+      1,
+      3,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  "dengue_affected_by_gender": {
+   "title": "Gender distribution of affected cases from 1 January to till date in 2026",
+   "categories": [],
+   "series": [
+    {
+     "name": "Brands",
+     "type": null,
+     "data": [
+      {
+       "name": "Male",
+       "y": 25367
+      },
+      {
+       "name": "Female",
+       "y": 15468
+      }
+     ]
+    }
+   ]
+  },
+  "dengue_death_by_gender": {
+   "title": "Gender distribution of deaths from 1 January to till date in 2026",
+   "categories": [],
+   "series": [
+    {
+     "name": "Brands",
+     "type": null,
+     "data": [
+      {
+       "name": "Male",
+       "y": 51
+      },
+      {
+       "name": "Female",
+       "y": 62
+      }
+     ]
+    }
+   ]
+  },
+  "affected_in_division_by_week": {
+   "title": "Dengue affected (Admitted) in division by EPI (Epidemiological) Week in 2026",
+   "categories": [
+    "W01",
+    "W02",
+    "W03",
+    "W04",
+    "W05",
+    "W06",
+    "W07",
+    "W08",
+    "W09",
+    "W10",
+    "W11",
+    "W12",
+    "W13",
+    "W14",
+    "W15",
+    "W16",
+    "W17",
+    "W18",
+    "W19",
+    "W20",
+    "W21",
+    "W22",
+    "W23",
+    "W24",
+    "W25",
+    "W26",
+    "W27",
+    "W28",
+    "W29",
+    "W30",
+    "W31",
+    "W32",
+    "W33",
+    "W34",
+    "W35"
+   ],
+   "series": [
+    {
+     "name": "Barisal",
+     "type": null,
+     "data": [
+      67,
+      41,
+      30,
+      16,
+      12,
+      18,
+      34,
+      18,
+      8,
+      16,
+      10,
+      4,
+      56,
+      48,
+      41,
+      62,
+      32,
+      57,
+      74,
+      54,
+      25,
+      146,
+      204,
+      167,
+      274,
+      248,
+      331,
+      367,
+      440,
+      478,
+      359,
+      721,
+      412,
+      710,
+      796
+     ]
+    },
+    {
+     "name": "Dhaka",
+     "type": null,
+     "data": [
+      244,
+      130,
+      59,
+      59,
+      48,
+      40,
+      35,
+      33,
+      33,
+      25,
+      34,
+      29,
+      58,
+      41,
+      47,
+      53,
+      37,
+      39,
+      54,
+      76,
+      44,
+      86,
+      100,
+      192,
+      383,
+      344,
+      475,
+      843,
+      1026,
+      1248,
+      1312,
+      2711,
+      1165,
+      2143,
+      3061
+     ]
+    },
+    {
+     "name": "Chattogram",
+     "type": null,
+     "data": [
+      129,
+      46,
+      38,
+      44,
+      28,
+      23,
+      29,
+      25,
+      25,
+      18,
+      13,
+      20,
+      21,
+      23,
+      29,
+      29,
+      41,
+      43,
+      31,
+      46,
+      41,
+      60,
+      66,
+      87,
+      108,
+      153,
+      226,
+      318,
+      431,
+      550,
+      486,
+      784,
+      477,
+      713,
+      976
+     ]
+    },
+    {
+     "name": "Khulna",
+     "type": null,
+     "data": [
+      26,
+      10,
+      12,
+      12,
+      5,
+      10,
+      15,
+      3,
+      4,
+      5,
+      2,
+      0,
+      13,
+      7,
+      9,
+      4,
+      8,
+      13,
+      16,
+      15,
+      9,
+      113,
+      73,
+      106,
+      131,
+      143,
+      247,
+      305,
+      320,
+      346,
+      419,
+      930,
+      630,
+      1082,
+      1444
+     ]
+    },
+    {
+     "name": "Rangpur",
+     "type": null,
+     "data": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      22,
+      3,
+      1,
+      1,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      2,
+      0,
+      40,
+      165,
+      93,
+      96,
+      254,
+      66,
+      134,
+      125
+     ]
+    },
+    {
+     "name": "Rajshahi",
+     "type": null,
+     "data": [
+      32,
+      17,
+      3,
+      10,
+      2,
+      0,
+      8,
+      1,
+      2,
+      1,
+      3,
+      0,
+      5,
+      18,
+      0,
+      6,
+      3,
+      0,
+      3,
+      6,
+      5,
+      11,
+      7,
+      27,
+      26,
+      38,
+      43,
+      47,
+      88,
+      172,
+      130,
+      411,
+      250,
+      329,
+      526
+     ]
+    },
+    {
+     "name": "Sylhet",
+     "type": null,
+     "data": [
+      4,
+      2,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      4,
+      7,
+      3,
+      0,
+      0,
+      0,
+      7,
+      1,
+      2,
+      6,
+      12,
+      7,
+      0,
+      12,
+      8,
+      8,
+      11,
+      12,
+      22,
+      15,
+      14,
+      22
+     ]
+    },
+    {
+     "name": "Mymensingh",
+     "type": null,
+     "data": [
+      20,
+      9,
+      5,
+      12,
+      6,
+      5,
+      5,
+      0,
+      0,
+      2,
+      3,
+      2,
+      4,
+      7,
+      1,
+      1,
+      3,
+      0,
+      4,
+      7,
+      0,
+      13,
+      6,
+      23,
+      18,
+      41,
+      42,
+      111,
+      150,
+      143,
+      178,
+      341,
+      228,
+      371,
+      496
+     ]
+    }
+   ]
+  },
+  "death_case_ration_by_week": {
+   "title": "Number of death vs. admitted by EPI (Epidemiological) week in 2026",
+   "categories": [
+    "W01",
+    "W02",
+    "W03",
+    "W04",
+    "W05",
+    "W06",
+    "W07",
+    "W08",
+    "W09",
+    "W10",
+    "W11",
+    "W12",
+    "W13",
+    "W14",
+    "W15",
+    "W16",
+    "W17",
+    "W18",
+    "W19",
+    "W20",
+    "W21",
+    "W22",
+    "W23",
+    "W24",
+    "W25",
+    "W26",
+    "W27",
+    "W28",
+    "W29",
+    "W30",
+    "W31",
+    "W32",
+    "W33",
+    "W34",
+    "W35"
+   ],
+   "series": [
+    {
+     "name": "Affected (Admitted)",
+     "type": "column",
+     "data": [
+      525,
+      255,
+      148,
+      153,
+      101,
+      96,
+      132,
+      80,
+      72,
+      68,
+      66,
+      56,
+      158,
+      148,
+      156,
+      161,
+      125,
+      153,
+      183,
+      211,
+      126,
+      431,
+      462,
+      614,
+      948,
+      969,
+      1376,
+      2039,
+      2628,
+      3041,
+      2992,
+      6174,
+      3243,
+      5496,
+      7446
+     ]
+    },
+    {
+     "name": "Death",
+     "type": "column",
+     "data": [
+      0,
+      1,
+      1,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      1,
+      0,
+      1,
+      6,
+      6,
+      5,
+      9,
+      7,
+      14,
+      5,
+      12,
+      6,
+      13,
+      23
+     ]
+    },
+    {
+     "name": "Death rate",
+     "type": "spline",
+     "data": [
+      0,
+      0,
+      1,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  }
+ },
+ "tables": [
+  {
+   "title": "Age group distribution of affected cases of last 24 hours",
+   "headers": [
+    "Age Group",
+    "Male",
+    "Female",
+    "Total"
+   ],
+   "rows": [
+    {
+     "Age Group": "0-5",
+     "Male": 35,
+     "Female": 22,
+     "Total": 57
+    },
+    {
+     "Age Group": "06-10",
+     "Male": 28,
+     "Female": 22,
+     "Total": 50
+    },
+    {
+     "Age Group": "11-15",
+     "Male": 37,
+     "Female": 19,
+     "Total": 56
+    },
+    {
+     "Age Group": "16-20",
+     "Male": 93,
+     "Female": 46,
+     "Total": 139
+    },
+    {
+     "Age Group": "21-25",
+     "Male": 95,
+     "Female": 51,
+     "Total": 146
+    },
+    {
+     "Age Group": "26-30",
+     "Male": 103,
+     "Female": 60,
+     "Total": 163
+    },
+    {
+     "Age Group": "31-35",
+     "Male": 53,
+     "Female": 43,
+     "Total": 96
+    },
+    {
+     "Age Group": "36-40",
+     "Male": 49,
+     "Female": 30,
+     "Total": 79
+    },
+    {
+     "Age Group": "41-45",
+     "Male": 34,
+     "Female": 31,
+     "Total": 65
+    },
+    {
+     "Age Group": "46-50",
+     "Male": 25,
+     "Female": 17,
+     "Total": 42
+    },
+    {
+     "Age Group": "51-55",
+     "Male": 21,
+     "Female": 10,
+     "Total": 31
+    },
+    {
+     "Age Group": "56-60",
+     "Male": 13,
+     "Female": 11,
+     "Total": 24
+    },
+    {
+     "Age Group": "61-65",
+     "Male": 9,
+     "Female": 9,
+     "Total": 18
+    },
+    {
+     "Age Group": "66-70",
+     "Male": 10,
+     "Female": 1,
+     "Total": 11
+    },
+    {
+     "Age Group": "71-75",
+     "Male": 2,
+     "Female": 1,
+     "Total": 3
+    },
+    {
+     "Age Group": "76-80",
+     "Male": 2,
+     "Female": 3,
+     "Total": 5
+    },
+    {
+     "Age Group": "80+",
+     "Male": 2,
+     "Female": 1,
+     "Total": 3
+    },
+    {
+     "Age Group": "Grand Total",
+     "Male": 611,
+     "Female": 377,
+     "Total": 988
+    }
+   ]
+  },
+  {
+   "title": "Age group distribution of deaths of last 24 hours",
+   "headers": [
+    "Age Group",
+    "Male",
+    "Female",
+    "Total"
+   ],
+   "rows": [
+    {
+     "Age Group": "11-15",
+     "Male": 1,
+     "Female": 0,
+     "Total": 1
+    },
+    {
+     "Age Group": "36-40",
+     "Male": 0,
+     "Female": 1,
+     "Total": 1
+    },
+    {
+     "Age Group": "Grand Total",
+     "Male": 1,
+     "Female": 1,
+     "Total": 2
+    }
+   ]
+  },
+  {
+   "title": "Age group distribution of affected cases from 1 January to till date in 2026",
+   "headers": [
+    "Age Group",
+    "Male",
+    "Female",
+    "Total"
+   ],
+   "rows": [
+    {
+     "Age Group": "",
+     "Male": 1,
+     "Female": 0,
+     "Total": 1
+    },
+    {
+     "Age Group": "0-5",
+     "Male": 1178,
+     "Female": 924,
+     "Total": 2107
+    },
+    {
+     "Age Group": "06-10",
+     "Male": 1164,
+     "Female": 933,
+     "Total": 2101
+    },
+    {
+     "Age Group": "11-15",
+     "Male": 1666,
+     "Female": 942,
+     "Total": 2622
+    },
+    {
+     "Age Group": "16-20",
+     "Male": 3618,
+     "Female": 1906,
+     "Total": 5554
+    },
+    {
+     "Age Group": "21-25",
+     "Male": 3855,
+     "Female": 1972,
+     "Total": 5868
+    },
+    {
+     "Age Group": "26-30",
+     "Male": 3816,
+     "Female": 2034,
+     "Total": 5879
+    },
+    {
+     "Age Group": "31-35",
+     "Male": 2392,
+     "Female": 1616,
+     "Total": 4026
+    },
+    {
+     "Age Group": "36-40",
+     "Male": 2155,
+     "Female": 1460,
+     "Total": 3638
+    },
+    {
+     "Age Group": "41-45",
+     "Male": 1513,
+     "Female": 1074,
+     "Total": 2595
+    },
+    {
+     "Age Group": "42309",
+     "Male": 1,
+     "Female": 1,
+     "Total": 2
+    },
+    {
+     "Age Group": "46-50",
+     "Male": 1277,
+     "Female": 907,
+     "Total": 2191
+    },
+    {
+     "Age Group": "46301",
+     "Male": 0,
+     "Female": 1,
+     "Total": 1
+    },
+    {
+     "Age Group": "51-55",
+     "Male": 866,
+     "Female": 544,
+     "Total": 1415
+    },
+    {
+     "Age Group": "56-60",
+     "Male": 749,
+     "Female": 520,
+     "Total": 1276
+    },
+    {
+     "Age Group": "61-65",
+     "Male": 478,
+     "Female": 318,
+     "Total": 799
+    },
+    {
+     "Age Group": "66-70",
+     "Male": 320,
+     "Female": 183,
+     "Total": 505
+    },
+    {
+     "Age Group": "71-75",
+     "Male": 159,
+     "Female": 63,
+     "Total": 222
+    },
+    {
+     "Age Group": "76-80",
+     "Male": 92,
+     "Female": 44,
+     "Total": 137
+    },
+    {
+     "Age Group": "80+",
+     "Male": 67,
+     "Female": 26,
+     "Total": 93
+    },
+    {
+     "Age Group": "Grand Total",
+     "Male": 25367,
+     "Female": 15468,
+     "Total": 41032
+    }
+   ]
+  },
+  {
+   "title": "Age group distribution of deaths from 1 January to till date in 2026",
+   "headers": [
+    "Age Group",
+    "Male",
+    "Female",
+    "Total"
+   ],
+   "rows": [
+    {
+     "Age Group": "0-5",
+     "Male": 2,
+     "Female": 2,
+     "Total": 4
+    },
+    {
+     "Age Group": "06-10",
+     "Male": 2,
+     "Female": 1,
+     "Total": 3
+    },
+    {
+     "Age Group": "11-15",
+     "Male": 4,
+     "Female": 2,
+     "Total": 6
+    },
+    {
+     "Age Group": "16-20",
+     "Male": 2,
+     "Female": 3,
+     "Total": 5
+    },
+    {
+     "Age Group": "21-25",
+     "Male": 2,
+     "Female": 6,
+     "Total": 8
+    },
+    {
+     "Age Group": "26-30",
+     "Male": 8,
+     "Female": 8,
+     "Total": 16
+    },
+    {
+     "Age Group": "31-35",
+     "Male": 3,
+     "Female": 8,
+     "Total": 11
+    },
+    {
+     "Age Group": "36-40",
+     "Male": 6,
+     "Female": 8,
+     "Total": 14
+    },
+    {
+     "Age Group": "41-45",
+     "Male": 1,
+     "Female": 4,
+     "Total": 5
+    },
+    {
+     "Age Group": "46-50",
+     "Male": 4,
+     "Female": 9,
+     "Total": 13
+    },
+    {
+     "Age Group": "51-55",
+     "Male": 6,
+     "Female": 4,
+     "Total": 10
+    },
+    {
+     "Age Group": "56-60",
+     "Male": 3,
+     "Female": 2,
+     "Total": 5
+    },
+    {
+     "Age Group": "61-65",
+     "Male": 4,
+     "Female": 4,
+     "Total": 8
+    },
+    {
+     "Age Group": "66-70",
+     "Male": 1,
+     "Female": 0,
+     "Total": 1
+    },
+    {
+     "Age Group": "71-75",
+     "Male": 3,
+     "Female": 1,
+     "Total": 4
+    },
+    {
+     "Age Group": "Grand Total",
+     "Male": 51,
+     "Female": 62,
+     "Total": 113
+    }
+   ]
+  },
+  {
+   "title": "Affected cases within City corporation from 01 January to till date",
+   "headers": [
+    "Age Group",
+    "Male",
+    "Female",
+    "Total"
+   ],
+   "rows": [
+    {
+     "Age Group": "",
+     "Male": 1,
+     "Female": 0,
+     "Total": 1
+    },
+    {
+     "Age Group": "0-5",
+     "Male": 429,
+     "Female": 359,
+     "Total": 790
+    },
+    {
+     "Age Group": "06-10",
+     "Male": 429,
+     "Female": 362,
+     "Total": 792
+    },
+    {
+     "Age Group": "11-15",
+     "Male": 498,
+     "Female": 283,
+     "Total": 782
+    },
+    {
+     "Age Group": "16-20",
+     "Male": 773,
+     "Female": 517,
+     "Total": 1290
+    },
+    {
+     "Age Group": "21-25",
+     "Male": 782,
+     "Female": 559,
+     "Total": 1341
+    },
+    {
+     "Age Group": "26-30",
+     "Male": 787,
+     "Female": 625,
+     "Total": 1412
+    },
+    {
+     "Age Group": "31-35",
+     "Male": 536,
+     "Female": 419,
+     "Total": 955
+    },
+    {
+     "Age Group": "36-40",
+     "Male": 471,
+     "Female": 360,
+     "Total": 831
+    },
+    {
+     "Age Group": "41-45",
+     "Male": 349,
+     "Female": 233,
+     "Total": 582
+    },
+    {
+     "Age Group": "46-50",
+     "Male": 270,
+     "Female": 190,
+     "Total": 461
+    },
+    {
+     "Age Group": "51-55",
+     "Male": 204,
+     "Female": 142,
+     "Total": 346
+    },
+    {
+     "Age Group": "56-60",
+     "Male": 156,
+     "Female": 109,
+     "Total": 265
+    },
+    {
+     "Age Group": "61-65",
+     "Male": 107,
+     "Female": 84,
+     "Total": 191
+    },
+    {
+     "Age Group": "66-70",
+     "Male": 77,
+     "Female": 47,
+     "Total": 124
+    },
+    {
+     "Age Group": "71-75",
+     "Male": 54,
+     "Female": 17,
+     "Total": 71
+    },
+    {
+     "Age Group": "76-80",
+     "Male": 32,
+     "Female": 9,
+     "Total": 41
+    },
+    {
+     "Age Group": "80+",
+     "Male": 15,
+     "Female": 8,
+     "Total": 23
+    },
+    {
+     "Age Group": "Grand Total",
+     "Male": 5970,
+     "Female": 4323,
+     "Total": 10298
+    }
+   ]
+  },
+  {
+   "title": "Affected cases outside of City corporation from 01 January to till date",
+   "headers": [
+    "Age Group",
+    "Male",
+    "Female",
+    "Total"
+   ],
+   "rows": [
+    {
+     "Age Group": "0-5",
+     "Male": 737,
+     "Female": 560,
+     "Total": 1300
+    },
+    {
+     "Age Group": "06-10",
+     "Male": 725,
+     "Female": 566,
+     "Total": 1294
+    },
+    {
+     "Age Group": "11-15",
+     "Male": 1155,
+     "Female": 652,
+     "Total": 1820
+    },
+    {
+     "Age Group": "16-20",
+     "Male": 2815,
+     "Female": 1375,
+     "Total": 4220
+    },
+    {
+     "Age Group": "21-25",
+     "Male": 3038,
+     "Female": 1400,
+     "Total": 4479
+    },
+    {
+     "Age Group": "26-30",
+     "Male": 2988,
+     "Female": 1390,
+     "Total": 4407
+    },
+    {
+     "Age Group": "31-35",
+     "Male": 1831,
+     "Female": 1182,
+     "Total": 3031
+    },
+    {
+     "Age Group": "36-40",
+     "Male": 1657,
+     "Female": 1084,
+     "Total": 2764
+    },
+    {
+     "Age Group": "41-45",
+     "Male": 1149,
+     "Female": 829,
+     "Total": 1986
+    },
+    {
+     "Age Group": "42309",
+     "Male": 1,
+     "Female": 1,
+     "Total": 2
+    },
+    {
+     "Age Group": "46-50",
+     "Male": 999,
+     "Female": 712,
+     "Total": 1717
+    },
+    {
+     "Age Group": "46301",
+     "Male": 0,
+     "Female": 1,
+     "Total": 1
+    },
+    {
+     "Age Group": "51-55",
+     "Male": 655,
+     "Female": 399,
+     "Total": 1059
+    },
+    {
+     "Age Group": "56-60",
+     "Male": 585,
+     "Female": 405,
+     "Total": 997
+    },
+    {
+     "Age Group": "61-65",
+     "Male": 365,
+     "Female": 232,
+     "Total": 600
+    },
+    {
+     "Age Group": "66-70",
+     "Male": 239,
+     "Female": 136,
+     "Total": 377
+    },
+    {
+     "Age Group": "71-75",
+     "Male": 105,
+     "Female": 45,
+     "Total": 150
+    },
+    {
+     "Age Group": "76-80",
+     "Male": 59,
+     "Female": 35,
+     "Total": 95
+    },
+    {
+     "Age Group": "80+",
+     "Male": 51,
+     "Female": 18,
+     "Total": 69
+    },
+    {
+     "Age Group": "Grand Total",
+     "Male": 19154,
+     "Female": 11022,
+     "Total": 30368
+    }
+   ]
+  },
+  {
+   "title": "Deaths within City corporation from 01 January to till date",
+   "headers": [
+    "Age Group",
+    "Male",
+    "Female",
+    "Total"
+   ],
+   "rows": [
+    {
+     "Age Group": "0-5",
+     "Male": 1,
+     "Female": 1,
+     "Total": 2
+    },
+    {
+     "Age Group": "06-10",
+     "Male": 1,
+     "Female": 0,
+     "Total": 1
+    },
+    {
+     "Age Group": "11-15",
+     "Male": 2,
+     "Female": 2,
+     "Total": 4
+    },
+    {
+     "Age Group": "16-20",
+     "Male": 2,
+     "Female": 3,
+     "Total": 5
+    },
+    {
+     "Age Group": "21-25",
+     "Male": 0,
+     "Female": 4,
+     "Total": 4
+    },
+    {
+     "Age Group": "26-30",
+     "Male": 1,
+     "Female": 3,
+     "Total": 4
+    },
+    {
+     "Age Group": "31-35",
+     "Male": 0,
+     "Female": 4,
+     "Total": 4
+    },
+    {
+     "Age Group": "36-40",
+     "Male": 3,
+     "Female": 5,
+     "Total": 8
+    },
+    {
+     "Age Group": "41-45",
+     "Male": 1,
+     "Female": 3,
+     "Total": 4
+    },
+    {
+     "Age Group": "46-50",
+     "Male": 3,
+     "Female": 6,
+     "Total": 9
+    },
+    {
+     "Age Group": "51-55",
+     "Male": 0,
+     "Female": 2,
+     "Total": 2
+    },
+    {
+     "Age Group": "56-60",
+     "Male": 1,
+     "Female": 1,
+     "Total": 2
+    },
+    {
+     "Age Group": "61-65",
+     "Male": 2,
+     "Female": 2,
+     "Total": 4
+    },
+    {
+     "Age Group": "66-70",
+     "Male": 1,
+     "Female": 0,
+     "Total": 1
+    },
+    {
+     "Age Group": "71-75",
+     "Male": 1,
+     "Female": 0,
+     "Total": 1
+    },
+    {
+     "Age Group": "Grand Total",
+     "Male": 19,
+     "Female": 36,
+     "Total": 55
+    }
+   ]
+  },
+  {
+   "title": "Deaths outside of City corporation from 01 January to till date",
+   "headers": [
+    "Age Group",
+    "Male",
+    "Female",
+    "Total"
+   ],
+   "rows": [
+    {
+     "Age Group": "0-5",
+     "Male": 1,
+     "Female": 1,
+     "Total": 2
+    },
+    {
+     "Age Group": "06-10",
+     "Male": 1,
+     "Female": 1,
+     "Total": 2
+    },
+    {
+     "Age Group": "11-15",
+     "Male": 2,
+     "Female": 0,
+     "Total": 2
+    },
+    {
+     "Age Group": "21-25",
+     "Male": 2,
+     "Female": 2,
+     "Total": 4
+    },
+    {
+     "Age Group": "26-30",
+     "Male": 6,
+     "Female": 5,
+     "Total": 11
+    },
+    {
+     "Age Group": "31-35",
+     "Male": 3,
+     "Female": 4,
+     "Total": 7
+    },
+    {
+     "Age Group": "36-40",
+     "Male": 3,
+     "Female": 3,
+     "Total": 6
+    },
+    {
+     "Age Group": "41-45",
+     "Male": 0,
+     "Female": 1,
+     "Total": 1
+    },
+    {
+     "Age Group": "46-50",
+     "Male": 1,
+     "Female": 3,
+     "Total": 4
+    },
+    {
+     "Age Group": "51-55",
+     "Male": 6,
+     "Female": 2,
+     "Total": 8
+    },
+    {
+     "Age Group": "56-60",
+     "Male": 2,
+     "Female": 1,
+     "Total": 3
+    },
+    {
+     "Age Group": "61-65",
+     "Male": 2,
+     "Female": 2,
+     "Total": 4
+    },
+    {
+     "Age Group": "71-75",
+     "Male": 2,
+     "Female": 1,
+     "Total": 3
+    },
+    {
+     "Age Group": "Grand Total",
+     "Male": 31,
+     "Female": 26,
+     "Total": 57
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,17 @@
+{
+ "schema_version": 1,
+ "fetched_at": "2026-09-05T18:43:26Z",
+ "last_updated": "2026-09-05",
+ "year": 2026,
+ "summary": {
+  "epi_week": "W35",
+  "week_cases": 7446,
+  "week_deaths": 23,
+  "ytd_cases": 41032,
+  "ytd_deaths": 113,
+  "last24_cases": 988,
+  "last24_deaths": 2,
+  "discharged_last24": 986,
+  "discharged_ytd": 38179
+ }
+}

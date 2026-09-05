@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bangladesh Dengue Data Feed</title>
+<meta name="description" content="Auto-updating JSON feed and dashboard mirroring the DGHS Dengue Dynamic Dashboard for Bangladesh.">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#f6f7f9; --panel:#ffffff; --ink:#16202c; --muted:#5c6b7a;
+    --line:#e2e7ee; --accent:#337ab7; --danger:#d1495b; --ok:#2a9d5c;
+    --shadow:0 1px 2px rgba(16,32,48,.06),0 4px 16px rgba(16,32,48,.05);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#11161d; --panel:#182029; --ink:#e8eef5; --muted:#93a3b4;
+      --line:#26313d; --accent:#5aa9e6; --danger:#ff7a8a; --ok:#4cc38a;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 16px rgba(0,0,0,.3);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1180px;margin:0 auto;padding:24px 18px 60px}
+  header.top{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start;justify-content:space-between;margin-bottom:22px}
+  h1{font-size:1.5rem;margin:0 0 4px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:.9rem;margin:0}
+  .badge{display:inline-flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--line);
+         border-radius:999px;padding:6px 13px;font-size:.82rem;color:var(--muted);box-shadow:var(--shadow)}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+  .dot.stale{background:#e0a33e}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:12px;margin-bottom:26px}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 16px;box-shadow:var(--shadow)}
+  .kpi .label{font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px}
+  .kpi .value{font-size:1.85rem;font-weight:650;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .kpi.death .value{color:var(--danger)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(430px,1fr));gap:16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px 18px;box-shadow:var(--shadow);min-width:0}
+  .card h2{font-size:.98rem;margin:0 0 12px;font-weight:620}
+  .card.full{grid-column:1/-1}
+  .chart-box{position:relative;height:310px}
+  h3.section{font-size:.8rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);
+             margin:30px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  table{width:100%;border-collapse:collapse;font-size:.87rem}
+  th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+  th:first-child,td:first-child{text-align:left}
+  thead th{color:var(--muted);font-weight:600;font-size:.76rem;text-transform:uppercase;letter-spacing:.04em}
+  .scroll{overflow-x:auto;max-height:420px;overflow-y:auto}
+  code{background:rgba(127,146,166,.14);padding:2px 6px;border-radius:5px;
+       font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  pre{background:rgba(127,146,166,.1);border:1px solid var(--line);border-radius:9px;padding:13px 15px;
+      overflow-x:auto;font:12.5px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;margin:10px 0 0}
+  .endpoint{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--line)}
+  .endpoint:last-child{border-bottom:0}
+  .endpoint .what{color:var(--muted);font-size:.86rem;flex:1 1 210px}
+  footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:.82rem}
+  a{color:var(--accent)}
+  .err{background:var(--panel);border:1px solid var(--danger);border-radius:12px;padding:16px 18px;color:var(--danger)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <h1>Bangladesh Dengue Data Feed</h1>
+      <p class="sub">Machine-readable mirror of the DGHS Health Emergency Operation Center
+        <a href="https://dashboard.dghs.gov.bd/pages/heoc_dengue_v1.php" target="_blank" rel="noopener">Dengue Dynamic Dashboard</a>.</p>
+    </div>
+    <div class="badge"><span class="dot" id="freshDot"></span><span id="freshText">loading…</span></div>
+  </header>
+
+  <div id="error" hidden class="err"></div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <h3 class="section">Trends</h3>
+  <div class="grid" id="charts"></div>
+
+  <h3 class="section">Age &amp; sex breakdown</h3>
+  <div class="grid" id="tables"></div>
+
+  <h3 class="section">JSON endpoints for your app</h3>
+  <div class="card full">
+    <div id="endpoints"></div>
+    <p class="sub" style="margin-top:14px">Poll <code>summary.json</code> (small) and only pull
+      <code>latest.json</code> when <code>last_updated</code> changes. Both are CORS-enabled by GitHub Pages,
+      so a browser or mobile app can fetch them directly.</p>
+    <pre id="sample">// loading…</pre>
+  </div>
+
+  <footer>
+    Data source: Directorate General of Health Services (DGHS), Government of Bangladesh.
+    This site is an unofficial automated mirror; DGHS remains the authority for all figures.
+    Rebuilt automatically by GitHub Actions.
+  </footer>
+</div>
+
+<script>
+const NUM = new Intl.NumberFormat('en-US');
+const fmt = v => (v === null || v === undefined) ? '—' : NUM.format(v);
+const $ = id => document.getElementById(id);
+
+const CSS = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+
+// Charts to render, in order: source chart id -> how to draw it.
+const CHART_SPECS = [
+  {id:'confirmed_case',        type:'line', full:true,  fill:true},
+  {id:'death_case',            type:'line', full:true,  color:'--danger'},
+  {id:'by_week_case',          type:'line', full:true,  thin:true},
+  {id:'division_case',         type:'bar'},
+  {id:'division_death',        type:'bar',  color:'--danger'},
+  {id:'by_month_case',         type:'bar'},
+  {id:'year_case',             type:'bar'},
+  {id:'dengue_affected_by_age_group', type:'bar'},
+  {id:'dengue_death_by_age_group',    type:'bar', color:'--danger'},
+  {id:'affected_in_division_by_week', type:'line', full:true, thin:true},
+];
+
+const PALETTE = ['#337ab7','#2caffe','#2a9d5c','#e0a33e','#d1495b','#7b61ff',
+                 '#00b3a4','#c96f2f','#9c27b0','#5c6b7a','#0f7b6c'];
+
+function kpiCards(s, meta){
+  const week = s.epi_week ? `${s.epi_week} cases` : 'This week cases';
+  const cards = [
+    ['Cases in last 24h', s.last24_cases, false],
+    ['Deaths in last 24h', s.last24_deaths, true],
+    [week, s.week_cases, false],
+    [s.epi_week ? `${s.epi_week} deaths` : 'This week deaths', s.week_deaths, true],
+    [`Total cases ${meta.year || ''}`.trim(), s.ytd_cases, false],
+    [`Total deaths ${meta.year || ''}`.trim(), s.ytd_deaths, true],
+    ['Discharged (24h)', s.discharged_last24, false],
+    ['Discharged (YTD)', s.discharged_ytd, false],
+  ];
+  $('kpis').innerHTML = cards.map(([label, value, death]) => `
+    <div class="kpi${death ? ' death' : ''}">
+      <div class="label">${label}</div>
+      <div class="value">${fmt(value)}</div>
+    </div>`).join('');
+}
+
+function drawChart(spec, chart){
+  const wrap = document.createElement('div');
+  wrap.className = 'card' + (spec.full ? ' full' : '');
+  wrap.innerHTML = `<h2>${chart.title || spec.id}</h2><div class="chart-box"><canvas></canvas></div>`;
+  $('charts').appendChild(wrap);
+
+  const base = CSS(spec.color || '--accent');
+  const datasets = chart.series.map((s, i) => {
+    const points = s.data.map(p => (p && typeof p === 'object') ? p.y : p);
+    const color = chart.series.length > 1 ? PALETTE[i % PALETTE.length] : base;
+    return {
+      label: s.name || `series ${i + 1}`,
+      data: points,
+      borderColor: color,
+      backgroundColor: spec.type === 'line'
+        ? (spec.fill ? color + '33' : 'transparent')
+        : color + 'cc',
+      borderWidth: spec.thin ? 1.6 : 2,
+      pointRadius: 0,
+      pointHoverRadius: 3,
+      tension: .25,
+      fill: !!spec.fill,
+    };
+  });
+
+  new Chart(wrap.querySelector('canvas'), {
+    type: spec.type,
+    data: {labels: chart.categories, datasets},
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index', intersect:false},
+      plugins:{
+        legend:{display:datasets.length > 1, labels:{boxWidth:11, boxHeight:11, font:{size:11}, color:CSS('--muted')}},
+        tooltip:{callbacks:{label:c => `${c.dataset.label}: ${fmt(c.parsed.y)}`}},
+      },
+      scales:{
+        x:{grid:{display:false}, ticks:{color:CSS('--muted'), font:{size:10},
+            maxRotation:0, autoSkipPadding:18}},
+        y:{beginAtZero:true, grid:{color:CSS('--line')},
+           ticks:{color:CSS('--muted'), font:{size:10}, callback:v => NUM.format(v)}},
+      },
+    },
+  });
+}
+
+function drawTable(t){
+  const card = document.createElement('div');
+  card.className = 'card';
+  const head = t.headers.map(h => `<th>${h}</th>`).join('');
+  const body = t.rows.map(r =>
+    `<tr>${t.headers.map(h => `<td>${typeof r[h] === 'number' ? fmt(r[h]) : (r[h] || '—')}</td>`).join('')}</tr>`
+  ).join('');
+  card.innerHTML = `<h2>${t.title || 'Table'}</h2>
+    <div class="scroll"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+  $('tables').appendChild(card);
+}
+
+function endpoints(){
+  const base = location.href.replace(/[^/]*$/, '');
+  const rows = [
+    ['data/summary.json', 'Headline numbers only — small, ideal for frequent polling'],
+    ['data/latest.json', 'Full dataset: every KPI, chart series and table'],
+    ['data/history/index.json', 'List of archived report dates'],
+    ['data/history/YYYY-MM-DD.json', 'Full snapshot for one past report date'],
+  ];
+  $('endpoints').innerHTML = rows.map(([path, what]) =>
+    `<div class="endpoint"><code>${base}${path}</code><span class="what">${what}</span></div>`).join('');
+}
+
+function freshness(doc){
+  const updated = doc.meta.last_updated;
+  const days = updated
+    ? Math.floor((Date.now() - Date.parse(updated + 'T00:00:00Z')) / 86400000)
+    : null;
+  $('freshText').textContent = updated
+    ? `DGHS report date ${doc.meta.last_updated_label}` + (days > 1 ? ` · ${days} days old` : '')
+    : 'report date unknown';
+  if (days !== null && days > 2) $('freshDot').classList.add('stale');
+}
+
+fetch('data/latest.json?t=' + Date.now())
+  .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  .then(doc => {
+    freshness(doc);
+    kpiCards(doc.summary, doc.meta);
+    CHART_SPECS.forEach(spec => { if (doc.charts[spec.id]) drawChart(spec, doc.charts[spec.id]); });
+    doc.tables.forEach(drawTable);
+    endpoints();
+    $('sample').textContent = JSON.stringify(
+      {schema_version: doc.schema_version, fetched_at: doc.fetched_at,
+       last_updated: doc.meta.last_updated, year: doc.meta.year, summary: doc.summary}, null, 2);
+  })
+  .catch(err => {
+    $('error').hidden = false;
+    $('error').textContent = 'Could not load data/latest.json — ' + err.message +
+      '. If this is a fresh repository, run the "Update dengue data" workflow once.';
+    $('freshText').textContent = 'no data';
+    $('freshDot').classList.add('stale');
+  });
+</script>
+</body>
+</html>
