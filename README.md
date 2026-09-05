@@ -21,8 +21,8 @@ the result, so your app never has to parse HTML.
 Once Pages is on, these are served at:
 
 ```
-https://<your-username>.github.io/<repo-name>/data/summary.json
-https://<your-username>.github.io/<repo-name>/data/latest.json
+https://druzzal.github.io/dengue-bd-dashboard/data/summary.json
+https://druzzal.github.io/dengue-bd-dashboard/data/latest.json
 ```
 
 GitHub Pages sends `Access-Control-Allow-Origin: *`, so a browser or mobile app can fetch them directly.
@@ -41,7 +41,7 @@ GitHub Pages sends `Access-Control-Allow-Origin: *`, so a browser or mobile app 
    Or create an empty repo on github.com, then:
 
    ```bash
-   git remote add origin https://github.com/<you>/dengue-bd-dashboard.git
+   git remote add origin https://github.com/druzzal/dengue-bd-dashboard.git
    git branch -M main && git push -u origin main
    ```
 
@@ -53,7 +53,7 @@ GitHub Pages sends `Access-Control-Allow-Origin: *`, so a browser or mobile app 
 
 4. **Run it once** — *Actions* tab → *Update dengue data* → **Run workflow**.
 
-Your dashboard is then live at `https://<you>.github.io/dengue-bd-dashboard/`.
+Your dashboard is then live at `https://druzzal.github.io/dengue-bd-dashboard/`.
 
 ---
 
@@ -77,7 +77,7 @@ so your app keeps serving the last good data rather than empty values.
 Poll `summary.json`, and only pull the big `latest.json` when `last_updated` changes:
 
 ```js
-const BASE = 'https://<you>.github.io/dengue-bd-dashboard/data';
+const BASE = 'https://druzzal.github.io/dengue-bd-dashboard/data';
 
 async function refresh(cachedDate) {
   const s = await (await fetch(`${BASE}/summary.json`, {cache: 'no-store'})).json();
