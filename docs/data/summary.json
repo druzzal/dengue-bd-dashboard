@@ -1,12 +1,12 @@
 {
  "schema_version": 1,
- "fetched_at": "2026-09-21T18:10:23Z",
+ "fetched_at": "2026-09-22T10:57:57Z",
  "last_updated": "2026-09-21",
  "year": 2026,
  "summary": {
   "epi_week": "W38",
-  "week_cases": 1655,
-  "week_deaths": 6,
+  "week_cases": 3248,
+  "week_deaths": 12,
   "ytd_cases": 63627,
   "ytd_deaths": 190,
   "last24_cases": 1655,
