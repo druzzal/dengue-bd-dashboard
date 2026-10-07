@@ -380,6 +380,11 @@ function rolling7(values){
     return w.some(v => v == null) ? null : Math.round(10 * w.reduce((a, b) => a + b, 0) / 7) / 10;
   });
 }
+// DGHS prepends a stray value to some prior-year series (2025 has 13 monthly
+// points for 12 months and 56 weekly points for 53 labels). Checked against the
+// monthly totals, dropping that first point lines the weeks and months up again;
+// anything past the last label is cut.
+const aligned = (series, cats) => series.data.length > cats.length ? series.data.slice(1, cats.length + 1) : series.data;
 const cumulative = vals => { let t = 0; return vals.map(v => (t += v || 0)); };
 
 function previousRow(date){
@@ -529,14 +534,12 @@ function hero(doc){
   const wk = weekly(doc, /admitted/i), n = parseInt((s.epi_week || '').slice(1), 10);
   const prevLabel = n > 1 ? 'W' + String(n - 1).padStart(2, '0') : null;
   const cmp = doc.charts.by_week_case;
-  // Use the most recent prior year whose series lines up with the week labels;
-  // DGHS's 2025 series has more points than labels, so its weeks are unreliable.
   const lastYear = cmp && cmp.series
-    .filter(x => x.data.length === cmp.categories.length && /\d{4}/.test(x.name || ''))
+    .filter(x => /\d{4}/.test(x.name || ''))
     .sort((a, b) => /\d{4}/.exec(b.name)[0] - /\d{4}/.exec(a.name)[0])[0];
   const lyNum = lastYear && +/\d{4}/.exec(lastYear.name)[0];
   if (prevLabel && lastYear){
-    const cur = wk.values[wk.labels.indexOf(prevLabel)], prior = yOf(lastYear.data[cmp.categories.indexOf(prevLabel)]);
+    const cur = wk.values[wk.labels.indexOf(prevLabel)], prior = yOf(aligned(lastYear, cmp.categories)[cmp.categories.indexOf(prevLabel)]);
     if (cur != null && prior){
       const r = cur / prior;
       const phrase = r >= 1.1 ? `<strong>${r.toFixed(1)}×</strong> the same week of ${lyNum}`
@@ -655,7 +658,8 @@ function drawYearComparison(doc, {id, title, sub, prevId, currentId, currentSeri
     .sort((a, b) => String(b.year).localeCompare(String(a.year)))
     .forEach(({s, year}, i) => {
       const color = prevColors[i] || '--context';
-      datasets.push(line(year, labels.map(l => yOf(s.data[prev.categories.map(x => x.trim()).indexOf(l.trim())]) ?? null), CSS(color), {borderWidth:1.75, order:1}));
+      const data = aligned(s, prev.categories), cats = prev.categories.map(x => x.trim());
+      datasets.push(line(year, labels.map(l => yOf(data[cats.indexOf(l.trim())]) ?? null), CSS(color), {borderWidth:1.75, order:1}));
       keys.push(key(color, year));
     });
   keys.push(`<span><i class="dash"></i>in progress</span>`);

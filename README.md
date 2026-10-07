@@ -164,7 +164,9 @@ exactly as DGHS feeds them to Highcharts. Use `Math.abs()` for counts. Snapshots
 2026-10-07 have empty `categories` for these four charts (a since-fixed parser gap).
 
 `death_case` lists only days with at least one death; use `daily.csv` for a gap-free daily series.
-`by_week_case` and `by_month_case` hold 2023–2025 only — the current year's weekly counts are in
+In `by_week_case` and `by_month_case` the 2025 series carries one stray leading value (56 weekly
+points for 53 labels, 13 monthly for 12); drop the first point to align it, as the dashboard does.
+Both charts hold 2023–2025 only — the current year's weekly counts are in
 `death_case_ration_by_week` and monthly counts in `monthly_case_and_death_in_year`.
 
 ### Useful chart keys
