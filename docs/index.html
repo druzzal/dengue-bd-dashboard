@@ -281,7 +281,7 @@
 
   <section class="block" id="age">
     <div class="sec-head"><div class="t"><span class="sec-num">03</span><div><h2>Age &amp; sex</h2>
-      <p>Who is being admitted and who is dying, year to date. Age-band slips in the DGHS data are corrected: a band spelled two ways or turned into a date by a spreadsheet goes back into its band, and cases with no usable band are grouped as “Age unclear”. Totals are unchanged.</p></div></div></div>
+      <p>Who is being admitted and who is dying, year to date. Age-band slips in the DGHS data are corrected: a band spelled two ways or turned into a date by a spreadsheet goes back into its band.</p></div></div></div>
     <div class="grid" id="ageGrid"></div>
     <div class="card full" style="margin-top:16px" id="tableCard"></div>
   </section>
@@ -406,7 +406,7 @@ const byAge = (a, b) => { const x = ageKey(a), y = ageKey(b); return x[0]-y[0] |
 //   "06-10" / "6-10"  same band, spelled two ways          -> 6-10
 //   "46301" / "42309" a band a spreadsheet turned into a date -> decoded back
 //                     (6 Oct 2026 is "6-10"; 1 Nov 2015 is "11-15", read as Nov-15)
-//   "0-10", "21-30", blank  no 5-year band can be told       -> Age unclear
+//   "0-10", "21-30", blank  no 5-year band can be told       -> not shown
 const UNCLEAR = 'Age unclear';
 function parseBand(text){
   const m = /^(\d+)\s*(?:-\s*(\d+)|(\+))\s*$/.exec(String(text || '').trim());
@@ -453,7 +453,6 @@ function spelling(x){
 }
 const list = xs => xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`;
 function mergedNote(e){
-  if (e.label === UNCLEAR) return `Recorded as ${list(e.spellings.map(spelling))}: no single 5-year band can be told`;
   return e.spellings.length > 1 ? `Combines DGHS rows ${list(e.spellings.map(spelling))}` : '';
 }
 // Symmetric axis limits: a round tick step (1, 2 or 5 × a power of ten) giving
@@ -799,9 +798,7 @@ function drawPyramid(doc, id, title){
   if (!male || !female) return false;
   const all = mergeBands(c.categories.map((l, i) => ({label:l,
     values:{male:Math.abs(yOf(male.data[i]) || 0), female:Math.abs(yOf(female.data[i]) || 0)}})));
-  // A pyramid needs a band per bar, so cases with no usable band are counted in the caption instead.
   const bands = all.filter(b => b.label !== UNCLEAR);
-  const unclear = all.filter(b => b.label === UNCLEAR).reduce((t, b) => t + b.values.male + b.values.female, 0);
   // Same reach either side of zero, so a male bar and a female bar of equal
   // length always mean the same number of people.
   const {step, reach} = symmetricScale(Math.max(...bands.flatMap(b => [b.values.male, b.values.female])));
@@ -813,8 +810,7 @@ function drawPyramid(doc, id, title){
   o.scales.y.border = {display:false};
   o.interaction = {mode:'index', axis:'y', intersect:false};
   o.plugins.tooltip.callbacks.footer = items => mergedNote(bands[items[0].dataIndex]);
-  const el = card('ageGrid', {title, legend:key('--male', 'Male', 'sq') + key('--female', 'Female', 'sq'), box:'tall',
-    sub:unclear ? `${fmt(unclear)} ${unclear === 1 ? 'case' : 'cases'} with no usable age band ${unclear === 1 ? 'is' : 'are'} not shown; see “Age unclear” in the table below.` : ''});
+  const el = card('ageGrid', {title, legend:key('--male', 'Male', 'sq') + key('--female', 'Female', 'sq'), box:'tall'});
   chart(id, el.querySelector('canvas'), {type:'bar', data:{labels:bands.map(b => b.label), datasets:[
     bar('Male', bands.map(b => -b.values.male), CSS('--male'), {borderSkipped:false, borderRadius:3, barPercentage:.82, categoryPercentage:.92}),
     bar('Female', bands.map(b => b.values.female), CSS('--female'), {borderSkipped:false, borderRadius:3, barPercentage:.82, categoryPercentage:.92}),
@@ -837,6 +833,7 @@ function drawTables(doc){
   const t = tables[state.table], ageCol = t.headers[0];
   const isTotal = r => /total/i.test(String(r[ageCol] || ''));
   const body = mergeBands(t.rows.filter(r => !isTotal(r)).map(r => ({label:r[ageCol], values:r})))
+    .filter(e => e.label !== UNCLEAR)
     .map(e => ({...e.values, [ageCol]:e.label, _note:mergedNote(e)}));
   const totals = t.rows.filter(isTotal);
   const barCols = {Male:'--male', Female:'--female'};
