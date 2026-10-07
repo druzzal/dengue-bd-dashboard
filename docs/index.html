@@ -185,8 +185,6 @@
   .btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:4px 10px;
        font-size:.78rem;font-weight:550;color:var(--ink-2);cursor:pointer;text-decoration:none;white-space:nowrap}
   .btn:hover{color:var(--ink);border-color:var(--muted)}
-  pre{background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:14px 16px;overflow-x:auto;
-      font:12.5px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;margin:14px 0 0;color:var(--ink-2)}
 
   footer{margin:64px 0 0;padding:26px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.84rem}
   footer .wrap{display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-between}
@@ -292,8 +290,6 @@
       <p>Every figure on this page is a static file you can download or fetch from your own app. All files are CORS-enabled.</p></div></div></div>
     <div class="card full">
       <div class="endpoints" id="endpoints"></div>
-      <p class="sub" style="margin-top:16px">Poll <code>summary.json</code> and only pull <code>latest.json</code> when <code>last_updated</code> changes.</p>
-      <pre id="sample">// loading…</pre>
     </div>
   </section>
 </main>
@@ -863,9 +859,6 @@ async function load(date){
     return;
   }
   render();
-  const d = state.doc;
-  $('sample').textContent = JSON.stringify({schema_version:d.schema_version, fetched_at:d.fetched_at,
-    last_updated:d.meta.last_updated, year:d.meta.year, summary:d.summary}, null, 2);
 }
 
 function setRange(r){
