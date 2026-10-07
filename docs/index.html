@@ -173,6 +173,7 @@
   .cellbar{display:flex;align-items:center;justify-content:flex-end;gap:10px}
   .cellbar .meter{max-width:140px;height:6px}
   td.glitch{color:var(--muted);font-style:italic}
+  sup.merged{color:var(--muted);margin-left:2px;cursor:help}
 
   /* ---- data */
   .endpoints{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
@@ -280,7 +281,7 @@
 
   <section class="block" id="age">
     <div class="sec-head"><div class="t"><span class="sec-num">03</span><div><h2>Age &amp; sex</h2>
-      <p>Who is being admitted and who is dying, year to date. Age bands are shown exactly as DGHS publishes them, including overlapping bands.</p></div></div></div>
+      <p>Who is being admitted and who is dying, year to date. A band DGHS spells two ways ("06-10" and "6-10") is shown as one; overlapping bands such as "0-10" are kept as published.</p></div></div></div>
     <div class="grid" id="ageGrid"></div>
     <div class="card full" style="margin-top:16px" id="tableCard"></div>
   </section>
@@ -399,6 +400,37 @@ function ageKey(label){
   return m ? [0, +m[1], m[2] ? +m[2] : 999] : [1, 0, 0];
 }
 const byAge = (a, b) => { const x = ageKey(a), y = ageKey(b); return x[0]-y[0] || x[1]-y[1] || x[2]-y[2]; };
+
+// DGHS groups records by the literal text of the age band, so one band typed two
+// ways ("06-10" and "6-10") arrives as two rows. Key bands by their numbers and
+// sum the rows that share one. Labels that are not age bands keep their own row.
+function bandKey(label){
+  const m = /^(\d+)\s*(?:-\s*(\d+)|(\+))\s*$/.exec(String(label || '').trim());
+  return m ? (m[3] ? `${+m[1]}+` : `${+m[1]}-${+m[2]}`) : String(label || '');
+}
+function mergeBands(items){   // items: [{label, values:{col:number}}]
+  const out = new Map();
+  items.forEach(({label, values}) => {
+    const k = bandKey(label);
+    if (!out.has(k)) out.set(k, {label:k, values:{}, spellings:[]});
+    const e = out.get(k);
+    e.spellings.push(String(label));
+    Object.entries(values).forEach(([c, v]) => {
+      if (typeof v === 'number') e.values[c] = (e.values[c] || 0) + v;
+      else if (!(c in e.values)) e.values[c] = v;
+    });
+  });
+  return [...out.values()].sort((a, b) => byAge(a.label, b.label));
+}
+const mergedNote = e => e.spellings.length > 1 ? `Combines DGHS rows ${e.spellings.map(x => `"${x}"`).join(' and ')}` : '';
+// Symmetric axis limits: a round tick step (1, 2 or 5 × a power of ten) giving
+// about three ticks per side, and a reach that is a whole number of steps.
+function symmetricScale(maxValue){
+  const raw = Math.max(1, maxValue) * 1.04, target = raw / 3;
+  const p = Math.pow(10, Math.floor(Math.log10(target)));
+  const step = Math.max(1, [1, 2, 5, 10].map(m => m * p).find(v => v >= target));
+  return {step, reach:Math.ceil(raw / step) * step};
+}
 
 // "Dhaka  (Out of CC)" / "Dhaka Division (Out of CC)" / "Dhaka" -> "dhaka"
 const placeKey = s => String(s || '').toLowerCase().replace(/\(out of cc\)|division/g, '').replace(/\s+/g, '');
@@ -732,15 +764,23 @@ function drawPyramid(doc, id, title){
   if (!c || !c.categories.length) return false;   // snapshots before 2026-10-07 lack age labels
   const male = c.series.find(s => /^male/i.test(s.name || '')), female = c.series.find(s => /^female/i.test(s.name || ''));
   if (!male || !female) return false;
-  const order = c.categories.map((l, i) => [l, i]).sort((a, b) => byAge(a[0], b[0]));
+  const bands = mergeBands(c.categories.map((l, i) => ({label:l,
+    values:{male:Math.abs(yOf(male.data[i]) || 0), female:Math.abs(yOf(female.data[i]) || 0)}})));
+  // Same reach either side of zero, so a male bar and a female bar of equal
+  // length always mean the same number of people.
+  const {step, reach} = symmetricScale(Math.max(...bands.flatMap(b => [b.values.male, b.values.female])));
   const o = baseOptions({horizontal:true, stacked:true, abs:true});
+  Object.assign(o.scales.x, {min:-reach, max:reach});
+  Object.assign(o.scales.x.ticks, {stepSize:step, maxTicksLimit:undefined});
+  o.scales.x.grid.color = ctx => ctx.tick && ctx.tick.value === 0 ? CSS('--muted') : CSS('--line-2');
   o.scales.y.ticks.autoSkip = false;
   o.scales.y.border = {display:false};
   o.interaction = {mode:'index', axis:'y', intersect:false};
+  o.plugins.tooltip.callbacks.footer = items => mergedNote(bands[items[0].dataIndex]);
   const el = card('ageGrid', {title, legend:key('--male', 'Male', 'sq') + key('--female', 'Female', 'sq'), box:'tall'});
-  chart(id, el.querySelector('canvas'), {type:'bar', data:{labels:order.map(o => o[0]), datasets:[
-    bar('Male', order.map(([, i]) => -Math.abs(male.data[i] || 0)), CSS('--male'), {borderSkipped:false, borderRadius:3, barPercentage:.82, categoryPercentage:.92}),
-    bar('Female', order.map(([, i]) => Math.abs(female.data[i] || 0)), CSS('--female'), {borderSkipped:false, borderRadius:3, barPercentage:.82, categoryPercentage:.92}),
+  chart(id, el.querySelector('canvas'), {type:'bar', data:{labels:bands.map(b => b.label), datasets:[
+    bar('Male', bands.map(b => -b.values.male), CSS('--male'), {borderSkipped:false, borderRadius:3, barPercentage:.82, categoryPercentage:.92}),
+    bar('Female', bands.map(b => b.values.female), CSS('--female'), {borderSkipped:false, borderRadius:3, barPercentage:.82, categoryPercentage:.92}),
   ]}, options:o});
   return true;
 }
@@ -759,14 +799,19 @@ function drawTables(doc){
   state.table = Math.min(state.table, tables.length - 1);
   const t = tables[state.table], ageCol = t.headers[0];
   const isTotal = r => /total/i.test(String(r[ageCol] || ''));
-  const body = t.rows.filter(r => !isTotal(r)).sort((a, b) => byAge(String(a[ageCol] || ''), String(b[ageCol] || '')));
+  const body = mergeBands(t.rows.filter(r => !isTotal(r)).map(r => ({label:r[ageCol], values:r})))
+    .map(e => ({...e.values, [ageCol]:e.label, _note:mergedNote(e)}));
   const totals = t.rows.filter(isTotal);
   const barCols = {Male:'--male', Female:'--female'};
   const max = {};
   Object.keys(barCols).forEach(h => { max[h] = Math.max(1, ...body.map(r => typeof r[h] === 'number' ? r[h] : 0)); });
   const cell = (r, h, i) => {
     const v = r[h];
-    if (i === 0) return `<td${!isTotal(r) && ageKey(String(v || ''))[0] ? ' class="glitch" title="Not a valid age band in the source data"' : ''}>${esc(v || '—')}</td>`;
+    if (i === 0){
+      const glitch = !isTotal(r) && ageKey(String(v || ''))[0];
+      const note = glitch ? 'Not a valid age band in the source data' : r._note;
+      return `<td${glitch ? ' class="glitch"' : ''}${note ? ` title="${esc(note)}"` : ''}>${esc(v || '—')}${r._note ? '<sup class="merged">*</sup>' : ''}</td>`;
+    }
     if (barCols[h] && typeof v === 'number' && !isTotal(r))
       return `<td><div class="cellbar"><div class="meter"><span style="width:${100 * v / max[h]}%;background:var(${barCols[h]})"></span></div>${fmt(v)}</div></td>`;
     return `<td>${typeof v === 'number' ? fmt(v) : esc(v || '—')}</td>`;
@@ -777,7 +822,8 @@ function drawTables(doc){
     <div class="tabs" role="tablist">${tables.map((x, i) =>
       `<button type="button" role="tab" aria-selected="${i === state.table}" data-i="${i}">${esc(tableLabel(x))}</button>`).join('')}</div>
     <div class="scroll"><table><thead><tr>${t.headers.map(h => `<th scope="col">${esc(h)}</th>`).join('')}</tr></thead>
-      <tbody>${body.map(r => row(r)).join('')}${totals.map(r => row(r, 'total')).join('')}</tbody></table></div>`;
+      <tbody>${body.map(r => row(r)).join('')}${totals.map(r => row(r, 'total')).join('')}</tbody></table>
+      ${body.some(r => r._note) ? `<p class="sub" style="margin:10px 0 0">* ${esc(body.filter(r => r._note).map(r => r._note.replace('Combines DGHS rows ', '')).join('; '))} — the same band, spelled two ways by DGHS, shown as one row.</p>` : ''}</div>`;
   $('tableCard').querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
     state.table = +b.dataset.i; drawTables(doc);
     $('tableCard').querySelector(`.tabs button[data-i="${state.table}"]`).focus();
