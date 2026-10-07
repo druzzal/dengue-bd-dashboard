@@ -281,7 +281,7 @@
 
   <section class="block" id="age">
     <div class="sec-head"><div class="t"><span class="sec-num">03</span><div><h2>Age &amp; sex</h2>
-      <p>Who is being admitted and who is dying, year to date. A band DGHS spells two ways ("06-10" and "6-10") is shown as one; overlapping bands such as "0-10" are kept as published.</p></div></div></div>
+      <p>Who is being admitted and who is dying, year to date. Age-band slips in the DGHS data are corrected: a band spelled two ways or turned into a date by a spreadsheet goes back into its band, and cases with no usable band are grouped as “Age unclear”. Totals are unchanged.</p></div></div></div>
     <div class="grid" id="ageGrid"></div>
     <div class="card full" style="margin-top:16px" id="tableCard"></div>
   </section>
@@ -401,12 +401,36 @@ function ageKey(label){
 }
 const byAge = (a, b) => { const x = ageKey(a), y = ageKey(b); return x[0]-y[0] || x[1]-y[1] || x[2]-y[2]; };
 
-// DGHS groups records by the literal text of the age band, so one band typed two
-// ways ("06-10" and "6-10") arrives as two rows. Key bands by their numbers and
-// sum the rows that share one. Labels that are not age bands keep their own row.
+// DGHS groups records by the literal text of the age band, so data-entry slips
+// arrive as rows of their own. Each label is mapped to the band it stands for:
+//   "06-10" / "6-10"  same band, spelled two ways          -> 6-10
+//   "46301" / "42309" a band a spreadsheet turned into a date -> decoded back
+//                     (6 Oct 2026 is "6-10"; 1 Nov 2015 is "11-15", read as Nov-15)
+//   "0-10", "21-30", blank  no 5-year band can be told       -> Age unclear
+const UNCLEAR = 'Age unclear';
+function parseBand(text){
+  const m = /^(\d+)\s*(?:-\s*(\d+)|(\+))\s*$/.exec(String(text || '').trim());
+  if (!m) return null;
+  if (m[3]) return {key:`${+m[1]}+`};
+  const lo = +m[1], hi = +m[2];
+  return hi > lo ? {key:`${lo}-${hi}`, wide:hi - lo > 5} : null;
+}
+function serialToBand(text){
+  if (!/^\d{5}$/.test(String(text).trim())) return null;
+  const n = +text;
+  if (n < 20000 || n > 60000) return null;
+  const d = new Date(Date.UTC(1899, 11, 30) + n * 864e5);
+  const day = d.getUTCDate(), month = d.getUTCMonth() + 1;
+  // Excel reads "6-10" as day-month and "11-15" (no 15th month) as month-year.
+  const typed = day === 1 ? `${month}-${d.getUTCFullYear() % 100}` : `${day}-${month}`;
+  const band = parseBand(typed);
+  return band && !band.wide ? {key:band.key, date:d.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric', timeZone:'UTC'})} : null;
+}
 function bandKey(label){
-  const m = /^(\d+)\s*(?:-\s*(\d+)|(\+))\s*$/.exec(String(label || '').trim());
-  return m ? (m[3] ? `${+m[1]}+` : `${+m[1]}-${+m[2]}`) : String(label || '');
+  const band = parseBand(label);
+  if (band) return band.wide ? UNCLEAR : band.key;
+  const serial = serialToBand(label);
+  return serial ? serial.key : UNCLEAR;
 }
 function mergeBands(items){   // items: [{label, values:{col:number}}]
   const out = new Map();
@@ -414,7 +438,7 @@ function mergeBands(items){   // items: [{label, values:{col:number}}]
     const k = bandKey(label);
     if (!out.has(k)) out.set(k, {label:k, values:{}, spellings:[]});
     const e = out.get(k);
-    e.spellings.push(String(label));
+    e.spellings.push(String(label ?? ''));
     Object.entries(values).forEach(([c, v]) => {
       if (typeof v === 'number') e.values[c] = (e.values[c] || 0) + v;
       else if (!(c in e.values)) e.values[c] = v;
@@ -422,7 +446,16 @@ function mergeBands(items){   // items: [{label, values:{col:number}}]
   });
   return [...out.values()].sort((a, b) => byAge(a.label, b.label));
 }
-const mergedNote = e => e.spellings.length > 1 ? `Combines DGHS rows ${e.spellings.map(x => `"${x}"`).join(' and ')}` : '';
+function spelling(x){
+  if (!String(x).trim()) return 'a blank age band';
+  const serial = serialToBand(x);
+  return serial ? `"${x}" (a spreadsheet date, ${serial.date})` : `"${x}"`;
+}
+const list = xs => xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`;
+function mergedNote(e){
+  if (e.label === UNCLEAR) return `Recorded as ${list(e.spellings.map(spelling))}: no single 5-year band can be told`;
+  return e.spellings.length > 1 ? `Combines DGHS rows ${list(e.spellings.map(spelling))}` : '';
+}
 // Symmetric axis limits: a round tick step (1, 2 or 5 × a power of ten) giving
 // about three ticks per side, and a reach that is a whole number of steps.
 function symmetricScale(maxValue){
@@ -764,8 +797,11 @@ function drawPyramid(doc, id, title){
   if (!c || !c.categories.length) return false;   // snapshots before 2026-10-07 lack age labels
   const male = c.series.find(s => /^male/i.test(s.name || '')), female = c.series.find(s => /^female/i.test(s.name || ''));
   if (!male || !female) return false;
-  const bands = mergeBands(c.categories.map((l, i) => ({label:l,
+  const all = mergeBands(c.categories.map((l, i) => ({label:l,
     values:{male:Math.abs(yOf(male.data[i]) || 0), female:Math.abs(yOf(female.data[i]) || 0)}})));
+  // A pyramid needs a band per bar, so cases with no usable band are counted in the caption instead.
+  const bands = all.filter(b => b.label !== UNCLEAR);
+  const unclear = all.filter(b => b.label === UNCLEAR).reduce((t, b) => t + b.values.male + b.values.female, 0);
   // Same reach either side of zero, so a male bar and a female bar of equal
   // length always mean the same number of people.
   const {step, reach} = symmetricScale(Math.max(...bands.flatMap(b => [b.values.male, b.values.female])));
@@ -777,7 +813,8 @@ function drawPyramid(doc, id, title){
   o.scales.y.border = {display:false};
   o.interaction = {mode:'index', axis:'y', intersect:false};
   o.plugins.tooltip.callbacks.footer = items => mergedNote(bands[items[0].dataIndex]);
-  const el = card('ageGrid', {title, legend:key('--male', 'Male', 'sq') + key('--female', 'Female', 'sq'), box:'tall'});
+  const el = card('ageGrid', {title, legend:key('--male', 'Male', 'sq') + key('--female', 'Female', 'sq'), box:'tall',
+    sub:unclear ? `${fmt(unclear)} ${unclear === 1 ? 'case' : 'cases'} with no usable age band ${unclear === 1 ? 'is' : 'are'} not shown; see “Age unclear” in the table below.` : ''});
   chart(id, el.querySelector('canvas'), {type:'bar', data:{labels:bands.map(b => b.label), datasets:[
     bar('Male', bands.map(b => -b.values.male), CSS('--male'), {borderSkipped:false, borderRadius:3, barPercentage:.82, categoryPercentage:.92}),
     bar('Female', bands.map(b => b.values.female), CSS('--female'), {borderSkipped:false, borderRadius:3, barPercentage:.82, categoryPercentage:.92}),
@@ -809,7 +846,7 @@ function drawTables(doc){
     const v = r[h];
     if (i === 0){
       const glitch = !isTotal(r) && ageKey(String(v || ''))[0];
-      const note = glitch ? 'Not a valid age band in the source data' : r._note;
+      const note = r._note || (glitch ? 'Not a valid age band in the source data' : '');
       return `<td${glitch ? ' class="glitch"' : ''}${note ? ` title="${esc(note)}"` : ''}>${esc(v || '—')}${r._note ? '<sup class="merged">*</sup>' : ''}</td>`;
     }
     if (barCols[h] && typeof v === 'number' && !isTotal(r))
@@ -823,7 +860,8 @@ function drawTables(doc){
       `<button type="button" role="tab" aria-selected="${i === state.table}" data-i="${i}">${esc(tableLabel(x))}</button>`).join('')}</div>
     <div class="scroll"><table><thead><tr>${t.headers.map(h => `<th scope="col">${esc(h)}</th>`).join('')}</tr></thead>
       <tbody>${body.map(r => row(r)).join('')}${totals.map(r => row(r, 'total')).join('')}</tbody></table>
-      ${body.some(r => r._note) ? `<p class="sub" style="margin:10px 0 0">* ${esc(body.filter(r => r._note).map(r => r._note.replace('Combines DGHS rows ', '')).join('; '))} — the same band, spelled two ways by DGHS, shown as one row.</p>` : ''}</div>`;
+      ${body.some(r => r._note) ? `<div class="sub" style="margin:12px 0 0">${body.filter(r => r._note).map(r =>
+        `<p style="margin:2px 0">* <b>${esc(r[ageCol])}</b>: ${esc(r._note)}.</p>`).join('')}</div>` : ''}</div>`;
   $('tableCard').querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
     state.table = +b.dataset.i; drawTables(doc);
     $('tableCard').querySelector(`.tabs button[data-i="${state.table}"]`).focus();

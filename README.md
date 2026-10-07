@@ -68,6 +68,9 @@ Your dashboard is then live at `https://druzzal.github.io/dengue-bd-dashboard/`.
 - This year's weekly and monthly admissions against 2023–2025 (the in-progress week/month is dashed).
 - Weekly admissions per division, with one division highlighted at a time.
 - Division rankings, yearly totals, and age-sex pyramids for cases and deaths.
+- Age-band slips in the DGHS tables are corrected on the page (the JSON stays as published):
+  `06-10`/`6-10` are one band; `46301` and `42309` are `6-10` and `11-15` that a spreadsheet
+  turned into dates (6 Oct 2026, Nov 2015); blank, `0-10` and `21-30` rows become "Age unclear".
 - A **Report** picker to view any archived snapshot from `history/`.
 
 ---
