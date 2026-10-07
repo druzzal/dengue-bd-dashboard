@@ -5,131 +5,307 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bangladesh Dengue Data Feed</title>
 <meta name="description" content="Auto-updating JSON feed and dashboard mirroring the DGHS Dengue Dynamic Dashboard for Bangladesh.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+  // Apply the saved theme before first paint to avoid a flash.
+  try { const t = localStorage.getItem('dengue-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
 <style>
   :root{
     color-scheme:light;
-    --bg:#f6f7f9; --panel:#ffffff; --ink:#16202c; --muted:#5c6b7a;
-    --line:#e2e7ee; --accent:#2a78d6; --warn:#b26b00; --ok:#2a9d5c;
-    --shadow:0 1px 2px rgba(16,32,48,.06),0 4px 16px rgba(16,32,48,.05);
-    /* chart roles: categorical slots in fixed order, deaths keep their own hue */
+    --bg:#f6f5f1; --panel:#ffffff; --panel-2:#faf9f6; --ink:#12161c; --ink-2:#3a434e; --muted:#6b7480;
+    --line:#e6e3db; --line-2:#efede7; --accent:#2a78d6; --chip:#f0eee8; --chip-on:#12161c; --chip-on-ink:#ffffff;
+    --tip-bg:#12161c; --tip-ink:#f4f6f8; --glow:rgba(42,120,214,.10);
+    --shadow:0 1px 0 rgba(18,22,28,.03),0 1px 3px rgba(18,22,28,.04),0 8px 24px -12px rgba(18,22,28,.10);
+    /* chart roles: categorical slots in fixed order; deaths keep their own hue */
     --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
-    --deaths:#e34948; --context:#c3c8cf; --male:#2a78d6; --female:#eb6834;
+    --deaths:#e34948; --context:#c9cdd3; --male:#2a78d6; --female:#eb6834;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
       color-scheme:dark;
-      --bg:#11161d; --panel:#182029; --ink:#e8eef5; --muted:#93a3b4;
-      --line:#26313d; --accent:#5aa9e6; --warn:#e0a33e; --ok:#4cc38a;
-      --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 16px rgba(0,0,0,.3);
+      --bg:#0e1115; --panel:#151a20; --panel-2:#1a2027; --ink:#eef1f5; --ink-2:#c5ccd5; --muted:#8b96a3;
+      --line:#252c35; --line-2:#1d242c; --accent:#5aa9e6; --chip:#1d242c; --chip-on:#eef1f5; --chip-on-ink:#0e1115;
+      --tip-bg:#eef1f5; --tip-ink:#12161c; --glow:rgba(57,135,229,.14);
+      --shadow:0 1px 0 rgba(0,0,0,.3),0 8px 28px -12px rgba(0,0,0,.6);
       --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
-      --deaths:#e66767; --context:#3c4753; --male:#3987e5; --female:#d95926;
+      --deaths:#e66767; --context:#38424d; --male:#3987e5; --female:#d95926;
     }
   }
   :root[data-theme="dark"]{
     color-scheme:dark;
-    --bg:#11161d; --panel:#182029; --ink:#e8eef5; --muted:#93a3b4;
-    --line:#26313d; --accent:#5aa9e6; --warn:#e0a33e; --ok:#4cc38a;
-    --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 16px rgba(0,0,0,.3);
+    --bg:#0e1115; --panel:#151a20; --panel-2:#1a2027; --ink:#eef1f5; --ink-2:#c5ccd5; --muted:#8b96a3;
+    --line:#252c35; --line-2:#1d242c; --accent:#5aa9e6; --chip:#1d242c; --chip-on:#eef1f5; --chip-on-ink:#0e1115;
+    --tip-bg:#eef1f5; --tip-ink:#12161c; --glow:rgba(57,135,229,.14);
+    --shadow:0 1px 0 rgba(0,0,0,.3),0 8px 28px -12px rgba(0,0,0,.6);
     --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
-    --deaths:#e66767; --context:#3c4753; --male:#3987e5; --female:#d95926;
+    --deaths:#e66767; --context:#38424d; --male:#3987e5; --female:#d95926;
   }
+
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);
-       font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
-  .wrap{max-width:1180px;margin:0 auto;padding:24px 16px 60px}
-  header.top{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start;justify-content:space-between;margin-bottom:22px}
-  h1{font-size:1.5rem;margin:0 0 4px;letter-spacing:-.01em}
-  .sub{color:var(--muted);font-size:.9rem;margin:0}
-  .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-  .badge{display:inline-flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--line);
-         border-radius:999px;padding:6px 13px;font-size:.82rem;color:var(--muted);box-shadow:var(--shadow)}
-  .dot{width:8px;height:8px;border-radius:50%;background:var(--ok)}
-  .dot.stale{background:var(--warn)}
-  select{font:inherit;font-size:.84rem;color:var(--ink);background:var(--panel);border:1px solid var(--line);
-         border-radius:8px;padding:5px 8px}
-  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:12px}
-  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 16px;box-shadow:var(--shadow)}
-  .kpi .label{font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px}
-  .kpi .value{font-size:1.85rem;font-weight:650;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-  .kpi .delta{font-size:.8rem;color:var(--muted);margin-top:2px;font-variant-numeric:tabular-nums}
-  .kpi .split{display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px;margin:10px 0 6px}
-  .kpi .split span{display:block;height:100%}
-  .kpi .legend{font-size:.8rem;color:var(--muted);display:flex;justify-content:space-between;font-variant-numeric:tabular-nums}
-  .sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:0}
-  .note{font-size:.8rem;color:var(--muted);margin:0 0 26px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(430px,100%),1fr));gap:16px}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px 18px;box-shadow:var(--shadow);min-width:0}
-  .card-head{display:flex;flex-wrap:wrap;gap:8px 12px;justify-content:space-between;align-items:baseline;margin-bottom:12px}
-  .card h2{font-size:.98rem;margin:0;font-weight:620}
-  .card .cap{font-size:.8rem;color:var(--muted);margin:6px 0 0}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;
+       font:15px/1.55 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       font-feature-settings:"cv11","ss01"}
+  .num{font-variant-numeric:tabular-nums}
+  a{color:var(--accent);text-underline-offset:2px}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 16px}
+  button,select{font:inherit;color:inherit}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+  /* ---- top bar */
+  .bar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 82%,transparent);
+       backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);
+       border-bottom:1px solid var(--line)}
+  .bar .wrap{display:flex;align-items:center;gap:18px;height:58px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:650;letter-spacing:-.01em;white-space:nowrap;color:var(--ink);text-decoration:none}
+  .brand svg{flex:none}
+  .brand small{font-weight:500;color:var(--muted)}
+  nav.sections{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+  nav.sections::-webkit-scrollbar{display:none}
+  nav.sections a{color:var(--muted);text-decoration:none;font-size:.86rem;font-weight:500;padding:6px 10px;border-radius:8px;white-space:nowrap}
+  nav.sections a:hover{color:var(--ink);background:var(--chip)}
+  .bar-tools{display:flex;align-items:center;gap:8px}
+  .picker{display:flex;align-items:center;gap:6px;font-size:.82rem;color:var(--muted)}
+  .picker select{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:6px 28px 6px 10px;font-size:.84rem;
+                 appearance:none;-webkit-appearance:none;cursor:pointer;
+                 background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%236b7480' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+                 background-repeat:no-repeat;background-position:right 10px center}
+  .icon-btn{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;border:1px solid var(--line);
+            background:var(--panel);cursor:pointer;color:var(--ink-2)}
+  .icon-btn:hover{color:var(--ink)}
+
+  /* ---- hero */
+  .hero{position:relative;padding:44px 0 30px}
+  .hero::before{content:"";position:absolute;inset:-60px -20% auto auto;width:70%;height:420px;pointer-events:none;
+                background:radial-gradient(closest-side,var(--glow),transparent);z-index:-1}
+  .hero-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:36px;align-items:end}
+  .eyebrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;font-size:.8rem;color:var(--muted);margin-bottom:16px}
+  .pill{display:inline-flex;align-items:center;gap:7px;padding:4px 10px;border-radius:999px;background:var(--panel);
+        border:1px solid var(--line);color:var(--ink-2);font-weight:500}
+  .dot{width:7px;height:7px;border-radius:50%;background:#2a9d5c;box-shadow:0 0 0 3px rgba(42,157,92,.18)}
+  .dot.stale{background:#d18a00;box-shadow:0 0 0 3px rgba(209,138,0,.18)}
+  h1.headline{font-family:Fraunces,Georgia,serif;font-weight:500;font-size:clamp(1.7rem,3.4vw,2.6rem);line-height:1.14;
+              letter-spacing:-.02em;margin:0 0 14px;font-variation-settings:"opsz" 96;text-wrap:balance}
+  h1.headline b{font-weight:600}
+  h1.headline .c{color:var(--s1)} h1.headline .d{color:var(--deaths)}
+  .lede{color:var(--ink-2);font-size:1.02rem;margin:0;max-width:56ch}
+  .callout{margin-top:18px;display:inline-flex;gap:10px;align-items:baseline;flex-wrap:wrap;padding:10px 14px;border-radius:12px;
+           background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);font-size:.9rem;color:var(--ink-2)}
+  .callout strong{color:var(--ink)}
+  .hero-chart{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px 16px 10px;box-shadow:var(--shadow)}
+  .hero-chart .cap{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin-bottom:6px}
+  .hero-chart .box{position:relative;height:190px}
+
+  /* ---- tiles */
+  .tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  .tile{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 16px 14px;
+        box-shadow:var(--shadow);overflow:hidden;min-width:0}
+  .tile .k{font-size:.78rem;color:var(--muted);font-weight:500;display:flex;align-items:center;gap:7px}
+  .tile .k i{width:8px;height:8px;border-radius:2px;flex:none}
+  .tile .v{font-size:clamp(1.5rem,2.6vw,2rem);font-weight:650;letter-spacing:-.025em;margin:6px 0 2px;font-variant-numeric:tabular-nums}
+  .tile .s{font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums;min-height:1.2em}
+  .chg{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border-radius:999px;background:var(--chip);color:var(--ink-2);font-weight:550;margin-right:4px}
+  .tile svg.spark{display:block;width:100%;height:34px;margin-top:10px}
+  .tiles.wide{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:12px}
+  .split{display:flex;height:10px;gap:3px;margin:12px 0 10px}
+  .split span{display:block;height:100%;border-radius:3px}
+  .split-legend{display:flex;justify-content:space-between;gap:12px;font-size:.84rem;color:var(--ink-2);font-variant-numeric:tabular-nums}
+  .split-legend b{font-weight:650;color:var(--ink)}
+  .sw{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}
+  .fine{font-size:.78rem;color:var(--muted);margin:12px 2px 0}
+
+  /* ---- sections */
+  section.block{padding:54px 0 0;scroll-margin-top:60px}
+  .sec-head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 24px;justify-content:space-between;margin-bottom:18px}
+  .sec-head .t{display:flex;gap:14px;align-items:baseline}
+  .sec-num{font-family:Fraunces,Georgia,serif;font-size:.95rem;color:var(--muted);font-variation-settings:"opsz" 14}
+  .sec-head h2{font-family:Fraunces,Georgia,serif;font-weight:500;font-size:1.65rem;letter-spacing:-.015em;margin:0;font-variation-settings:"opsz" 72}
+  .sec-head p{margin:4px 0 0;color:var(--muted);font-size:.92rem;max-width:62ch}
+  .seg{display:inline-flex;padding:3px;border-radius:10px;background:var(--chip);gap:2px}
+  .seg button{border:0;background:transparent;padding:5px 12px;border-radius:8px;font-size:.82rem;font-weight:550;color:var(--muted);cursor:pointer}
+  .seg button[aria-pressed="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px 20px 16px;box-shadow:var(--shadow);min-width:0}
   .card.full{grid-column:1/-1}
-  .chart-box{position:relative;height:310px}
-  .chart-box.tall{height:460px}
-  h3.section{font-size:.8rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);
-             margin:30px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
-  table{width:100%;border-collapse:collapse;font-size:.87rem}
-  th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
-  th:first-child,td:first-child{text-align:left}
-  thead th{color:var(--muted);font-weight:600;font-size:.76rem;text-transform:uppercase;letter-spacing:.04em;
-           position:sticky;top:0;background:var(--panel)}
-  .scroll{overflow-x:auto;max-height:420px;overflow-y:auto}
-  code{background:rgba(127,146,166,.14);padding:2px 6px;border-radius:5px;
-       font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
-  pre{background:rgba(127,146,166,.1);border:1px solid var(--line);border-radius:9px;padding:13px 15px;
-      overflow-x:auto;font:12.5px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;margin:10px 0 0}
-  .endpoint{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--line)}
-  .endpoint:last-child{border-bottom:0}
-  .endpoint .what{color:var(--muted);font-size:.86rem;flex:1 1 210px}
-  footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:.82rem}
-  a{color:var(--accent)}
-  .err{background:var(--panel);border:1px solid var(--deaths);border-radius:12px;padding:16px 18px;color:var(--ink);margin-bottom:16px}
+  .card-head{display:flex;flex-wrap:wrap;gap:10px 16px;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+  .card h3{font-size:1rem;font-weight:620;margin:0;letter-spacing:-.005em}
+  .card .sub{font-size:.82rem;color:var(--muted);margin:3px 0 0}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.8rem;color:var(--ink-2)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
+  .legend i.sq{width:9px;height:9px;border-radius:2px}
+  .legend i.dash{background:none!important;border-top:2px dashed var(--s1);height:0}
+  .chart-box{position:relative;height:300px}
+  .chart-box.tall{height:500px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chips button{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 11px;font-size:.8rem;font-weight:550;color:var(--ink-2);cursor:pointer}
+  .chips button:hover{border-color:var(--muted)}
+  .chips button[aria-pressed="true"]{background:var(--chip-on);border-color:var(--chip-on);color:var(--chip-on-ink)}
+
+  /* ---- ranked lists */
+  .rank{display:grid;grid-template-columns:minmax(124px,1.2fr) minmax(0,2fr) minmax(0,1.3fr) 48px;gap:0 14px;font-size:.86rem}
+  .rank .h{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;padding:0 0 8px;border-bottom:1px solid var(--line)}
+  .rank .c{padding:8px 0;border-bottom:1px solid var(--line-2);display:flex;align-items:center;gap:8px;min-width:0;font-variant-numeric:tabular-nums}
+  .rank .name{color:var(--ink);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+  .rank .r{justify-content:flex-end;color:var(--muted)}
+  .meter{flex:1;height:8px;border-radius:4px;background:var(--line-2);overflow:hidden;min-width:20px}
+  .meter span{display:block;height:100%;border-radius:4px}
+  .rank .val{min-width:46px;text-align:right}
+
+  /* ---- tables */
+  .tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:thin;border-bottom:1px solid var(--line);margin:0 -20px 0;padding:0 20px}
+  .tabs button{border:0;background:none;padding:9px 12px 10px;font-size:.84rem;font-weight:550;color:var(--muted);cursor:pointer;white-space:nowrap;
+               border-bottom:2px solid transparent;margin-bottom:-1px}
+  .tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+  .scroll{overflow:auto;max-height:520px;margin:0 -20px -16px;padding:0 20px 8px}
+  table{width:100%;border-collapse:collapse;font-size:.86rem;font-variant-numeric:tabular-nums}
+  th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line-2);white-space:nowrap}
+  th:first-child,td:first-child{text-align:left;padding-left:0}
+  thead th{position:sticky;top:0;background:var(--panel);color:var(--muted);font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;
+           border-bottom:1px solid var(--line);padding-top:14px}
+  tbody tr:hover td{background:var(--panel-2)}
+  tr.total td{font-weight:650;border-top:1px solid var(--line);border-bottom:0}
+  .cellbar{display:flex;align-items:center;justify-content:flex-end;gap:10px}
+  .cellbar .meter{max-width:140px;height:6px}
+  td.glitch{color:var(--muted);font-style:italic}
+
+  /* ---- data */
+  .endpoints{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .ep{display:flex;flex-direction:column;gap:8px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:var(--panel-2);min-width:0}
+  .ep .top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .ep b{font-size:.9rem}
+  .ep p{margin:0;color:var(--muted);font-size:.84rem}
+  .ep code{font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink-2);word-break:break-all}
+  .ep .acts{display:flex;gap:6px;flex:none}
+  .btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:4px 10px;
+       font-size:.78rem;font-weight:550;color:var(--ink-2);cursor:pointer;text-decoration:none;white-space:nowrap}
+  .btn:hover{color:var(--ink);border-color:var(--muted)}
+  pre{background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:14px 16px;overflow-x:auto;
+      font:12.5px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;margin:14px 0 0;color:var(--ink-2)}
+
+  footer{margin:64px 0 0;padding:26px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.84rem}
+  footer .wrap{display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-between}
+  footer p{margin:0;max-width:70ch}
+
+  .err{margin:24px 0 0;background:var(--panel);border:1px solid var(--deaths);border-radius:14px;padding:16px 18px}
+  .skel{background:linear-gradient(90deg,var(--line-2),var(--line),var(--line-2));background-size:200% 100%;animation:sh 1.4s infinite;border-radius:8px}
+  @keyframes sh{to{background-position:-200% 0}}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} .skel{animation:none} }
+
+  @media (max-width: 900px){
+    .hero-grid{grid-template-columns:1fr;gap:24px}
+    .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .grid,.endpoints{grid-template-columns:1fr}
+    nav.sections{display:none}
+    .bar .wrap{justify-content:space-between}
+  }
+  @media (max-width: 520px){
+    .tiles.wide{grid-template-columns:1fr}
+    .brand small,.picker span{display:none}
+    .card{padding:16px 14px 12px;border-radius:16px}
+    .tabs{margin:0 -14px;padding:0 14px} .scroll{margin:0 -14px -12px;padding:0 14px 8px}
+    .rank{grid-template-columns:minmax(108px,1fr) minmax(0,1.4fr) minmax(0,1fr);gap:0 10px}
+    .rank .cfr{display:none}
+    .chart-box{height:260px} .chart-box.tall{height:460px}
+    .hero{padding-top:28px}
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <header class="top">
-    <div>
-      <h1>Bangladesh Dengue Data Feed</h1>
-      <p class="sub">Machine-readable mirror of the DGHS Health Emergency Operation Center
-        <a href="https://dashboard.dghs.gov.bd/pages/heoc_dengue_v1.php" target="_blank" rel="noopener">Dengue Dynamic Dashboard</a>.</p>
-    </div>
-    <div class="controls">
-      <label class="badge" for="snapshot">Report
-        <select id="snapshot"><option value="">Latest</option></select>
+<div class="bar">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true">
+        <rect width="26" height="26" rx="7" fill="var(--ink)"/>
+        <path d="M13 5.5c3 3.6 5 6.6 5 9.2a5 5 0 0 1-10 0c0-2.6 2-5.6 5-9.2z" fill="var(--bg)"/>
+        <path d="M10.6 15.2a2.6 2.6 0 0 0 2.4 2.4" stroke="var(--ink)" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      </svg>
+      <span>Dengue Bangladesh <small>· data feed</small></span>
+    </a>
+    <nav class="sections" aria-label="Sections">
+      <a href="#trends">Trends</a><a href="#geography">Geography</a><a href="#age">Age &amp; sex</a><a href="#data">Data &amp; API</a>
+    </nav>
+    <div class="bar-tools">
+      <label class="picker"><span>Report</span>
+        <select id="snapshot" aria-label="Report date"><option value="">Latest</option></select>
       </label>
-      <div class="badge"><span class="dot" id="freshDot"></span><span id="freshText">loading…</span></div>
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle colour theme"></button>
     </div>
-  </header>
+  </div>
+</div>
 
+<main class="wrap" id="top">
   <div id="error" hidden class="err"></div>
 
-  <div class="kpis" id="kpis"></div>
-  <p class="note" id="kpiNote"></p>
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow" id="eyebrow"><span class="pill"><span class="dot" id="freshDot"></span><span id="freshText">Loading latest DGHS report…</span></span></div>
+        <h1 class="headline" id="headline"><span class="skel" style="display:block;height:1.1em;width:92%"></span><span class="skel" style="display:block;height:1.1em;width:64%;margin-top:.25em"></span></h1>
+        <p class="lede" id="lede">&nbsp;</p>
+        <div id="callout"></div>
+      </div>
+      <div class="hero-chart">
+        <div class="cap"><span>Daily admissions · last 60 days</span><span id="heroRange"></span></div>
+        <div class="box"><canvas id="heroCanvas" aria-label="Daily admissions, last 60 days"></canvas></div>
+      </div>
+    </div>
+  </section>
 
-  <h3 class="section">Trends</h3>
-  <div class="grid" id="charts"></div>
+  <div class="tiles" id="tiles"></div>
+  <div class="tiles wide" id="splitTiles"></div>
+  <p class="fine" id="tileNote"></p>
 
-  <h3 class="section">Age &amp; sex breakdown</h3>
-  <div class="grid" id="ageCharts"></div>
-  <div class="grid" id="tables" style="margin-top:16px"></div>
+  <section class="block" id="trends">
+    <div class="sec-head">
+      <div class="t"><span class="sec-num">01</span><div><h2>Trends</h2>
+        <p>Hospital admissions and deaths as DGHS reports them, and how this season compares with recent years.</p></div></div>
+      <div class="seg" id="rangeSeg" role="group" aria-label="Date range">
+        <button type="button" data-range="30">30 days</button><button type="button" data-range="90">90 days</button><button type="button" data-range="all">Year to date</button>
+      </div>
+    </div>
+    <div class="grid" id="dailyGrid"></div>
+    <div class="grid" id="trendGrid" style="margin-top:16px"></div>
+  </section>
 
-  <h3 class="section">Downloads &amp; JSON endpoints</h3>
-  <div class="card full">
-    <div id="endpoints"></div>
-    <p class="sub" style="margin-top:14px">Poll <code>summary.json</code> (small) and only pull
-      <code>latest.json</code> when <code>last_updated</code> changes. All files are CORS-enabled by GitHub Pages,
-      so a browser or mobile app can fetch them directly.</p>
-    <pre id="sample">// loading…</pre>
+  <section class="block" id="geography">
+    <div class="sec-head"><div class="t"><span class="sec-num">02</span><div><h2>Geography</h2>
+      <p>Divisions and the two Dhaka city corporations (DNCC, DSCC). CFR is deaths per 100 admissions.</p></div></div></div>
+    <div class="grid" id="geoGrid"></div>
+  </section>
+
+  <section class="block" id="age">
+    <div class="sec-head"><div class="t"><span class="sec-num">03</span><div><h2>Age &amp; sex</h2>
+      <p>Who is being admitted and who is dying, year to date. Age bands are shown exactly as DGHS publishes them, including overlapping bands.</p></div></div></div>
+    <div class="grid" id="ageGrid"></div>
+    <div class="card full" style="margin-top:16px" id="tableCard"></div>
+  </section>
+
+  <section class="block" id="data">
+    <div class="sec-head"><div class="t"><span class="sec-num">04</span><div><h2>Data &amp; API</h2>
+      <p>Every figure on this page is a static file you can download or fetch from your own app. All files are CORS-enabled.</p></div></div></div>
+    <div class="card full">
+      <div class="endpoints" id="endpoints"></div>
+      <p class="sub" style="margin-top:16px">Poll <code>summary.json</code> and only pull <code>latest.json</code> when <code>last_updated</code> changes.</p>
+      <pre id="sample">// loading…</pre>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Source: Directorate General of Health Services (DGHS), Government of Bangladesh —
+      <a href="https://dashboard.dghs.gov.bd/pages/heoc_dengue_v1.php" target="_blank" rel="noopener">Dengue Dynamic Dashboard</a>.
+      This is an unofficial automated mirror; DGHS remains the authority for all figures.</p>
+    <p><a href="https://github.com/druzzal/dengue-bd-dashboard" target="_blank" rel="noopener">Source on GitHub</a> · rebuilt by GitHub Actions</p>
   </div>
-
-  <footer>
-    Data source: Directorate General of Health Services (DGHS), Government of Bangladesh.
-    This site is an unofficial automated mirror; DGHS remains the authority for all figures.
-    Rebuilt automatically by GitHub Actions.
-  </footer>
-</div>
+</footer>
 
 <script>
 const NUM = new Intl.NumberFormat('en-US');
@@ -139,6 +315,7 @@ const $ = id => document.getElementById(id);
 const CSS = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const yOf = p => (p && typeof p === 'object') ? p.y : p;
+const alpha = (hex, a) => hex + Math.round(a * 255).toString(16).padStart(2, '0');
 
 const MONTHS = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
 // '05-Sep-26' -> '2026-09-05'
@@ -148,110 +325,53 @@ function isoDate(label){
   const y = m[3].length === 2 ? '20' + m[3] : m[3];
   return `${y}-${String(MONTHS[m[2].toLowerCase()]).padStart(2,'0')}-${m[1].padStart(2,'0')}`;
 }
-const shortDate = iso => new Date(iso + 'T00:00:00Z')
-  .toLocaleDateString('en-GB', {day:'numeric', month:'short', timeZone:'UTC'});
+const dateFmt = (iso, opts) => iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString('en-GB', {timeZone:'UTC', ...opts}) : '';
+const shortDate = iso => dateFmt(iso, {day:'numeric', month:'short'});
+const longDate = iso => dateFmt(iso, {day:'numeric', month:'long', year:'numeric'});
 
-const state = {doc:null, timeseries:null, charts:[], highlight:'Dhaka'};
+const state = {doc:null, timeseries:null, charts:{}, highlight:'Dhaka', range:'90', table:2};
 
-// ---------------------------------------------------------------- KPIs
+// ---------------------------------------------------------------- theme
 
-function previousRow(date){
-  const rows = (state.timeseries && state.timeseries.rows) || [];
-  const i = rows.findIndex(r => r.date === date);
-  return i > 0 ? rows[i - 1] : null;
+const ICONS = {
+  auto:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 2a6 6 0 0 0 0 12z" fill="currentColor"/></svg>',
+  light:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1"/></svg>',
+  dark:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M13.5 9.5A5.5 5.5 0 0 1 6.5 2.5a5.5 5.5 0 1 0 7 7z"/></svg>',
+};
+function themeMode(){ return document.documentElement.dataset.theme || 'auto'; }
+function paintThemeButton(){
+  const m = themeMode();
+  $('themeBtn').innerHTML = ICONS[m];
+  $('themeBtn').title = `Theme: ${m} (click to change)`;
+}
+$('themeBtn').addEventListener('click', () => {
+  const next = {auto:'light', light:'dark', dark:'auto'}[themeMode()];
+  if (next === 'auto') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = next;
+  try { next === 'auto' ? localStorage.removeItem('dengue-theme') : localStorage.setItem('dengue-theme', next); } catch (e) {}
+  paintThemeButton();
+  if (state.doc) render();
+});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (state.doc && themeMode() === 'auto') render(); });
+paintThemeButton();
+
+// ---------------------------------------------------------------- derived series
+
+// Admissions and deaths per calendar day. The death chart only lists days with
+// a death, so days missing from it within the admissions range are zero.
+function dailySeries(doc){
+  const adm = doc.charts.confirmed_case, dth = doc.charts.death_case;
+  if (!adm || !adm.series[0]) return [];
+  const deaths = {};
+  if (dth && dth.series[0]) dth.categories.forEach((c, i) => { const d = isoDate(c); if (d) deaths[d] = yOf(dth.series[0].data[i]); });
+  return adm.categories.map((c, i) => ({date:isoDate(c), admitted:yOf(adm.series[0].data[i])}))
+    .filter(r => r.date).map(r => ({...r, deaths:deaths[r.date] ?? 0}));
 }
 
-function deltaText(now, before){
-  if (now == null || before == null) return '';
-  const d = now - before;
-  if (d === 0) return 'no change vs previous report';
-  return `${d > 0 ? '▲' : '▼'} ${fmt(Math.abs(d))} vs previous report`;
+function weekly(doc, re){
+  const c = doc.charts.death_case_ration_by_week;
+  const s = c && c.series.find(x => re.test(x.name || ''));
+  return s ? {labels:c.categories, values:s.data.map(yOf)} : {labels:[], values:[]};
 }
-
-function splitTile(label, chart){
-  if (!chart || !chart.series[0]) return '';
-  const pts = chart.series[0].data;
-  const m = yOf(pts.find(p => /^male/i.test(p.name || ''))), f = yOf(pts.find(p => /^female/i.test(p.name || '')));
-  if (m == null || f == null || m + f === 0) return '';
-  const mp = 100 * m / (m + f), fp = 100 - mp;
-  return `<div class="kpi">
-    <div class="label">${label}</div>
-    <div class="split" role="img" aria-label="Male ${pct(mp)}, female ${pct(fp)}">
-      <span style="width:${mp}%;background:var(--male)"></span><span style="width:${fp}%;background:var(--female)"></span>
-    </div>
-    <div class="legend"><span><i class="sw" style="background:var(--male)"></i>Male ${pct(mp,0)} · ${fmt(m)}</span></div>
-    <div class="legend"><span><i class="sw" style="background:var(--female)"></i>Female ${pct(fp,0)} · ${fmt(f)}</span></div>
-  </div>`;
-}
-
-function kpiCards(doc){
-  const s = doc.summary, meta = doc.meta, prev = previousRow(meta.last_updated);
-  const wk = s.epi_week || 'This week';
-  const cfr = s.ytd_cases ? 100 * s.ytd_deaths / s.ytd_cases : null;
-  const prevCfr = prev && prev.cfr_pct;
-  const cards = [
-    ['Cases in last 24h', fmt(s.last24_cases), deltaText(s.last24_cases, prev && prev.last24_cases)],
-    ['Deaths in last 24h', fmt(s.last24_deaths), deltaText(s.last24_deaths, prev && prev.last24_deaths)],
-    [`${wk} cases`, fmt(s.week_cases), ''],
-    [`${wk} deaths`, fmt(s.week_deaths), ''],
-    [`Total cases ${meta.year || ''}`.trim(), fmt(s.ytd_cases), ''],
-    [`Total deaths ${meta.year || ''}`.trim(), fmt(s.ytd_deaths), ''],
-    ['Case fatality rate', pct(cfr, 2),
-      prevCfr != null && cfr != null ? `${(cfr - prevCfr) >= 0 ? '▲' : '▼'} ${Math.abs(cfr - prevCfr).toFixed(3)} pts vs previous` : 'deaths ÷ admitted, year to date'],
-    ['Discharged (YTD)', fmt(s.discharged_ytd), `${fmt(s.discharged_last24)} in last 24h`],
-  ];
-  $('kpis').innerHTML = cards.map(([label, value, delta]) => `
-    <div class="kpi">
-      <div class="label">${esc(label)}</div>
-      <div class="value">${value}</div>
-      ${delta ? `<div class="delta">${esc(delta)}</div>` : ''}
-    </div>`).join('') +
-    splitTile(`Cases by sex ${meta.year || ''}`, doc.charts.dengue_affected_by_gender) +
-    splitTile(`Deaths by sex ${meta.year || ''}`, doc.charts.dengue_death_by_gender);
-  $('kpiNote').textContent = prev
-    ? `Changes are against the DGHS report of ${shortDate(prev.date)}. CFR counts hospital admissions only, so it overstates the fatality rate among all infections.`
-    : 'CFR counts hospital admissions only, so it overstates the fatality rate among all infections.';
-}
-
-// ---------------------------------------------------------------- chart helpers
-
-function card(title, {full = false, tall = false, caption = '', control = '', parent = 'charts'} = {}){
-  const el = document.createElement('div');
-  el.className = 'card' + (full ? ' full' : '');
-  el.innerHTML = `<div class="card-head"><h2>${esc(title)}</h2>${control}</div>
-    <div class="chart-box${tall ? ' tall' : ''}"><canvas></canvas></div>
-    ${caption ? `<p class="cap">${esc(caption)}</p>` : ''}`;
-  $(parent).appendChild(el);
-  return el;
-}
-
-function baseOptions({legend = true, horizontal = false, stacked = false, abs = false} = {}){
-  const muted = CSS('--muted'), line = CSS('--line');
-  const valueAxis = {beginAtZero:true, stacked, grid:{color:line}, border:{display:false},
-    ticks:{color:muted, font:{size:10}, callback:v => NUM.format(abs ? Math.abs(v) : v)}};
-  const catAxis = {stacked, grid:{display:false}, ticks:{color:muted, font:{size:10}, maxRotation:0, autoSkipPadding:18}};
-  return {
-    responsive:true, maintainAspectRatio:false, indexAxis: horizontal ? 'y' : 'x',
-    interaction:{mode:'index', intersect:false},
-    plugins:{
-      legend:{display:legend, labels:{boxWidth:11, boxHeight:11, font:{size:11}, color:muted}},
-      tooltip:{callbacks:{label:c => `${c.dataset.label}: ${fmt(abs ? Math.abs(c.raw) : c.raw)}`}},
-    },
-    scales: horizontal ? {x:valueAxis, y:catAxis} : {x:catAxis, y:valueAxis},
-  };
-}
-
-function plot(el, config){
-  state.charts.push(new Chart(el.querySelector('canvas'), config));
-}
-
-const bar = (label, data, color, extra = {}) => ({type:'bar', label, data, backgroundColor:color,
-  borderRadius:4, borderSkipped:'start', maxBarThickness:28, ...extra});
-const line = (label, data, color, extra = {}) => ({type:'line', label, data, borderColor:color,
-  backgroundColor:color, borderWidth:2, pointRadius:0, pointHoverRadius:4, cubicInterpolationMode:'monotone', ...extra});
-// Dash the segment into the last reported point: that week/month is still in progress.
-const partialTail = data => { const last = data.reduce((k, v, i) => v == null ? k : i, -1);
-  return {segment:{borderDash:ctx => ctx.p1DataIndex === last ? [5, 4] : undefined}}; };
 
 function rolling7(values){
   return values.map((_, i) => {
@@ -260,18 +380,15 @@ function rolling7(values){
     return w.some(v => v == null) ? null : Math.round(10 * w.reduce((a, b) => a + b, 0) / 7) / 10;
   });
 }
+const cumulative = vals => { let t = 0; return vals.map(v => (t += v || 0)); };
 
-// Admissions and deaths per calendar day. The death chart only lists days with
-// a death, so days missing from it within the admissions range are zero.
-function dailySeries(doc){
-  const adm = doc.charts.confirmed_case, dth = doc.charts.death_case;
-  if (!adm) return null;
-  const deaths = {};
-  if (dth) dth.categories.forEach((c, i) => { const d = isoDate(c); if (d) deaths[d] = yOf(dth.series[0].data[i]); });
-  const rows = adm.categories.map((c, i) => ({date:isoDate(c), admitted:yOf(adm.series[0].data[i])}))
-    .filter(r => r.date);
-  rows.forEach(r => { r.deaths = deaths[r.date] ?? 0; });
-  return rows;
+function previousRow(date){
+  const rows = (state.timeseries && state.timeseries.rows) || [];
+  const i = rows.findIndex(r => r.date === date);
+  return i > 0 ? rows[i - 1] : null;
+}
+function rowsUpTo(date){
+  return ((state.timeseries && state.timeseries.rows) || []).filter(r => r.date <= date);
 }
 
 // Age bands as published are sorted as text ("0-5","06-10",…,"6-10") and include
@@ -282,173 +399,444 @@ function ageKey(label){
 }
 const byAge = (a, b) => { const x = ageKey(a), y = ageKey(b); return x[0]-y[0] || x[1]-y[1] || x[2]-y[2]; };
 
-// ---------------------------------------------------------------- charts
+// "Dhaka  (Out of CC)" / "Dhaka Division (Out of CC)" / "Dhaka" -> "dhaka"
+const placeKey = s => String(s || '').toLowerCase().replace(/\(out of cc\)|division/g, '').replace(/\s+/g, '');
+const placeName = s => String(s || '').replace(/\s*Division\s*/i, ' ').replace(/\(Out of CC\)/i, '(excl. CC)').replace(/\s+/g, ' ').trim();
 
-function drawDaily(doc){
-  const rows = dailySeries(doc);
-  if (!rows) return;
-  const labels = rows.map(r => shortDate(r.date));
-  const adm = rows.map(r => r.admitted), dth = rows.map(r => r.deaths);
-  plot(card('Daily hospital admissions', {full:true, caption:'Bars: admissions reported per day. Line: 7-day average.'}), {
-    type:'bar', data:{labels, datasets:[
-      line('7-day average', rolling7(adm), CSS('--ink'), {borderWidth:2}),
-      bar('Admitted', adm, CSS('--s1') + 'b3', {borderRadius:2, maxBarThickness:6}),
-    ]}, options:baseOptions()});
-  plot(card('Daily deaths', {full:true, caption:'Days with no reported death are shown as zero. Line: 7-day average.'}), {
-    type:'bar', data:{labels, datasets:[
-      line('7-day average', rolling7(dth), CSS('--ink'), {borderWidth:2}),
-      bar('Deaths', dth, CSS('--deaths') + 'b3', {borderRadius:2, maxBarThickness:6}),
-    ]}, options:baseOptions()});
+// ---------------------------------------------------------------- tiny SVG sparkline
+
+function spark(values, color){
+  const v = values.filter(x => x != null);
+  if (v.length < 2) return '';
+  const max = Math.max(...v), min = Math.min(0, ...v), W = 100, H = 30, n = values.length - 1;
+  const pts = values.map((x, i) => x == null ? null : [i / n * W, H - 2 - (x - min) / ((max - min) || 1) * (H - 4)]).filter(Boolean);
+  const d = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(2) + ' ' + p[1].toFixed(2)).join('');
+  const area = d + `L${pts[pts.length - 1][0].toFixed(2)} ${H}L${pts[0][0].toFixed(2)} ${H}Z`;
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="color:var(${color})" aria-hidden="true">
+    <path d="${area}" fill="currentColor" fill-opacity=".10"/>
+    <path d="${d}" fill="none" stroke="currentColor" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linejoin="round"/></svg>`;
 }
 
-// Previous years come from the comparison chart; the current year's weekly
-// counts live in the death-vs-admitted chart, matched by week label.
-function drawYearComparison(doc, {title, prevId, currentId, currentSeries, labelsFrom, caption}){
+// ---------------------------------------------------------------- Chart.js theme + plugins
+
+// Vertical guide line at the hovered x position (line & column charts).
+const crosshair = {
+  id:'crosshair',
+  afterDatasetsDraw(chart){
+    const act = chart.tooltip && chart.tooltip.getActiveElements();
+    if (!act || !act.length || chart.options.indexAxis === 'y') return;
+    const x = act[0].element.x, {top, bottom} = chart.chartArea, c = chart.ctx;
+    c.save(); c.strokeStyle = CSS('--muted'); c.globalAlpha = .35; c.lineWidth = 1; c.setLineDash([3, 3]);
+    c.beginPath(); c.moveTo(x, top); c.lineTo(x, bottom); c.stroke(); c.restore();
+  },
+};
+// Selective value labels above chosen bars.
+const valueLabels = {
+  id:'valueLabels',
+  afterDatasetsDraw(chart, _, opts){
+    if (!opts || !opts.indices) return;
+    const meta = chart.getDatasetMeta(0), c = chart.ctx;
+    c.save(); c.font = `600 11px Inter, sans-serif`; c.fillStyle = CSS('--ink-2'); c.textAlign = 'center';
+    opts.indices.forEach(i => { const el = meta.data[i]; if (el) c.fillText(fmt(chart.data.datasets[0].data[i]), el.x, el.y - 7); });
+    c.restore();
+  },
+};
+Chart.register(crosshair, valueLabels);
+
+function applyChartTheme(){
+  Chart.defaults.font.family = 'Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+  Chart.defaults.font.size = 11;
+  Chart.defaults.color = CSS('--muted');
+  Chart.defaults.borderColor = CSS('--line-2');
+  Chart.defaults.animation.duration = 450;
+  Object.assign(Chart.defaults.plugins.tooltip, {
+    backgroundColor:CSS('--tip-bg'), titleColor:CSS('--tip-ink'), bodyColor:CSS('--tip-ink'),
+    padding:10, cornerRadius:10, boxPadding:5, usePointStyle:true, caretSize:5,
+    titleFont:{weight:'600', size:12}, bodyFont:{size:12},
+  });
+}
+
+function baseOptions({horizontal = false, stacked = false, abs = false, xMax = 8} = {}){
+  const valueAxis = {beginAtZero:true, stacked, border:{display:false}, grid:{color:CSS('--line-2'), drawTicks:false},
+    ticks:{padding:8, maxTicksLimit:5, callback:v => NUM.format(abs ? Math.abs(v) : v)}};
+  const catAxis = {stacked, grid:{display:false}, border:{color:CSS('--line')},
+    ticks:{padding:6, maxRotation:0, autoSkipPadding:22, maxTicksLimit:xMax}};
+  return {
+    responsive:true, maintainAspectRatio:false, indexAxis:horizontal ? 'y' : 'x',
+    interaction:{mode:'index', intersect:false},
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:c => ` ${c.dataset.label}: ${fmt(abs ? Math.abs(c.raw) : c.raw)}`}},
+    },
+    scales:horizontal ? {x:valueAxis, y:catAxis} : {x:catAxis, y:valueAxis},
+  };
+}
+
+// Vertical gradient that fades a series colour into the surface.
+const fade = (color, top = .28) => ctx => {
+  const {chart} = ctx, a = chart.chartArea;
+  if (!a) return 'transparent';
+  const g = chart.ctx.createLinearGradient(0, a.top, 0, a.bottom);
+  g.addColorStop(0, alpha(color, top)); g.addColorStop(1, alpha(color, 0));
+  return g;
+};
+
+const bar = (label, data, color, extra = {}) => ({type:'bar', label, data, backgroundColor:color,
+  borderRadius:4, borderSkipped:'start', maxBarThickness:30, ...extra});
+const line = (label, data, color, extra = {}) => ({type:'line', label, data, borderColor:color,
+  backgroundColor:color, borderWidth:2, pointRadius:0, pointHoverRadius:4, pointHoverBorderWidth:2,
+  pointHoverBorderColor:CSS('--panel'), cubicInterpolationMode:'monotone', ...extra});
+// Dash the segment into the last reported point: that week/month is still in progress.
+const partialTail = data => { const last = data.reduce((k, v, i) => v == null ? k : i, -1);
+  return {segment:{borderDash:ctx => ctx.p1DataIndex === last ? [5, 4] : undefined}}; };
+
+function chart(key, canvas, config){
+  if (state.charts[key]) state.charts[key].destroy();
+  state.charts[key] = new Chart(canvas, config);
+  return state.charts[key];
+}
+
+function card(parent, {title, sub = '', legend = '', control = '', full = false, box = '', body = ''}){
+  const el = document.createElement('div');
+  el.className = 'card' + (full ? ' full' : '');
+  el.innerHTML = `<div class="card-head"><div><h3>${esc(title)}</h3>${sub ? `<p class="sub">${esc(sub)}</p>` : ''}</div>${control}</div>
+    ${legend ? `<div class="legend" style="margin:-4px 0 12px">${legend}</div>` : ''}
+    ${body || `<div class="chart-box ${box}"><canvas></canvas></div>`}`;
+  $(parent).appendChild(el);
+  return el;
+}
+const key = (color, label, kind = '') => `<span><i class="${kind}" style="background:var(${color})"></i>${esc(label)}</span>`;
+
+// ---------------------------------------------------------------- hero + tiles
+
+function hero(doc){
+  const s = doc.summary, m = doc.meta, isSnap = !!$('snapshot').value;
+  const days = m.last_updated ? Math.floor((Date.now() - Date.parse(m.last_updated + 'T00:00:00Z')) / 86400000) : null;
+  $('freshText').textContent = !m.last_updated ? 'Report date unknown'
+    : isSnap ? `Archived DGHS report · ${longDate(m.last_updated)}`
+    : `DGHS report · ${longDate(m.last_updated)}` + (days > 1 ? ` · ${days} days old` : '');
+  $('freshDot').classList.toggle('stale', isSnap || (days !== null && days > 2));
+  $('eyebrow').querySelectorAll('.extra').forEach(e => e.remove());
+  if (s.epi_week) $('eyebrow').insertAdjacentHTML('beforeend', `<span class="extra">Epidemiological week ${esc(s.epi_week.replace(/^W0?/, ''))} of ${esc(m.year || '')}</span>`);
+
+  const died = s.last24_deaths === 0 ? 'no deaths were reported'
+    : `<b class="d">${fmt(s.last24_deaths)}</b> ${s.last24_deaths === 1 ? 'person died' : 'people died'}`;
+  $('headline').innerHTML = `In the 24 hours to ${esc(shortDate(m.last_updated) || 'the latest report')}, <b class="c">${fmt(s.last24_cases)}</b> people were admitted to hospital with dengue and ${died}.`;
+  $('lede').innerHTML = `<b class="num">${fmt(s.ytd_cases)}</b> admissions and <b class="num">${fmt(s.ytd_deaths)}</b> deaths so far in ${esc(m.year || 'this year')}. ${fmt(s.discharged_ytd)} patients have been discharged.`;
+
+  // Last complete week vs the same week a year earlier.
+  $('callout').innerHTML = '';
+  const wk = weekly(doc, /admitted/i), n = parseInt((s.epi_week || '').slice(1), 10);
+  const prevLabel = n > 1 ? 'W' + String(n - 1).padStart(2, '0') : null;
+  const cmp = doc.charts.by_week_case;
+  // Use the most recent prior year whose series lines up with the week labels;
+  // DGHS's 2025 series has more points than labels, so its weeks are unreliable.
+  const lastYear = cmp && cmp.series
+    .filter(x => x.data.length === cmp.categories.length && /\d{4}/.test(x.name || ''))
+    .sort((a, b) => /\d{4}/.exec(b.name)[0] - /\d{4}/.exec(a.name)[0])[0];
+  const lyNum = lastYear && +/\d{4}/.exec(lastYear.name)[0];
+  if (prevLabel && lastYear){
+    const cur = wk.values[wk.labels.indexOf(prevLabel)], prior = yOf(lastYear.data[cmp.categories.indexOf(prevLabel)]);
+    if (cur != null && prior){
+      const r = cur / prior;
+      const phrase = r >= 1.1 ? `<strong>${r.toFixed(1)}×</strong> the same week of ${lyNum}`
+        : r <= .9 ? `<strong>${Math.round(100 * (1 - r))}% fewer</strong> than the same week of ${lyNum}` : `about the same as ${lyNum}`;
+      $('callout').innerHTML = `<div class="callout"><span>Last full week (${esc(prevLabel)})</span><strong class="num">${fmt(cur)} admissions</strong><span>— ${phrase} (${fmt(prior)})</span></div>`;
+    }
+  }
+
+  const rows = dailySeries(doc).slice(-60);
+  if (rows.length){
+    $('heroRange').textContent = `${shortDate(rows[0].date)} – ${shortDate(rows[rows.length - 1].date)}`;
+    const adm = rows.map(r => r.admitted), o = baseOptions();
+    o.scales.x.display = false; o.scales.y.display = false; o.layout = {padding:{top:6}};
+    o.plugins.tooltip.callbacks.title = items => longDate(rows[items[0].dataIndex].date);
+    chart('hero', $('heroCanvas'), {type:'bar', data:{labels:rows.map(r => shortDate(r.date)), datasets:[
+      line('7-day average', rolling7(adm), CSS('--s1'), {borderWidth:2.5, fill:'origin', backgroundColor:fade(CSS('--s1'), .22), order:0}),
+      bar('Admitted', adm, alpha(CSS('--s1'), .28), {borderRadius:2, order:1, categoryPercentage:.9, barPercentage:.9}),
+    ]}, options:o});
+  }
+}
+
+function tiles(doc){
+  const s = doc.summary, m = doc.meta, prev = previousRow(m.last_updated), hist = rowsUpTo(m.last_updated);
+  const days = dailySeries(doc), last30 = days.slice(-30);
+  const wkA = weekly(doc, /admitted/i).values, wkD = weekly(doc, /^death$/i).values;
+  const cfr = s.ytd_cases ? 100 * s.ytd_deaths / s.ytd_cases : null;
+  const chg = (now, before, f = fmt) => {
+    if (now == null || before == null) return '';
+    const d = now - before;
+    return `<span class="chg">${d > 0 ? '↑' : d < 0 ? '↓' : '→'} ${f(Math.abs(d))}</span>`;
+  };
+  const wk = s.epi_week || 'This week';
+  const T = [
+    ['Admitted · last 24h', '--s1', s.last24_cases, `${chg(s.last24_cases, prev && prev.last24_cases)}vs previous report`, last30.map(r => r.admitted)],
+    ['Deaths · last 24h', '--deaths', s.last24_deaths, `${chg(s.last24_deaths, prev && prev.last24_deaths)}vs previous report`, last30.map(r => r.deaths)],
+    [`Admitted · ${wk}`, '--s1', s.week_cases, 'week in progress · weekly trend', wkA],
+    [`Deaths · ${wk}`, '--deaths', s.week_deaths, 'week in progress · weekly trend', wkD],
+    [`Admitted · ${m.year || 'YTD'}`, '--s1', s.ytd_cases, 'cumulative since 1 January', cumulative(days.map(r => r.admitted))],
+    [`Deaths · ${m.year || 'YTD'}`, '--deaths', s.ytd_deaths, 'cumulative since 1 January', cumulative(days.map(r => r.deaths))],
+    ['Case fatality rate', '--ink-2', pct(cfr, 2), prev && prev.cfr_pct != null && cfr != null
+      ? `${chg(cfr, prev.cfr_pct, v => v.toFixed(3))}pts vs previous` : 'deaths per 100 admissions', hist.map(r => r.cfr_pct)],
+    [`Discharged · ${m.year || 'YTD'}`, '--s3', s.discharged_ytd, `${fmt(s.discharged_last24)} in last 24h`, hist.map(r => r.discharged_ytd)],
+  ];
+  $('tiles').innerHTML = T.map(([k, color, v, sub, series]) => `
+    <div class="tile">
+      <div class="k"><i style="background:var(${color})"></i>${esc(k)}</div>
+      <div class="v">${typeof v === 'number' ? fmt(v) : v}</div>
+      <div class="s">${sub}</div>
+      ${spark(series, color)}
+    </div>`).join('');
+
+  const split = (label, c) => {
+    const pts = c && c.series[0] ? c.series[0].data : [];
+    const ml = yOf(pts.find(p => /^male/i.test(p.name || ''))), fe = yOf(pts.find(p => /^female/i.test(p.name || '')));
+    if (ml == null || fe == null || ml + fe === 0) return '';
+    const mp = 100 * ml / (ml + fe);
+    return `<div class="tile"><div class="k">${esc(label)}</div>
+      <div class="split" role="img" aria-label="Male ${pct(mp)}, female ${pct(100 - mp)}">
+        <span style="width:${mp}%;background:var(--male)"></span><span style="width:${100 - mp}%;background:var(--female)"></span></div>
+      <div class="split-legend"><span><i class="sw" style="background:var(--male)"></i>Male <b>${pct(mp, 0)}</b> · ${fmt(ml)}</span>
+        <span><i class="sw" style="background:var(--female)"></i>Female <b>${pct(100 - mp, 0)}</b> · ${fmt(fe)}</span></div></div>`;
+  };
+  $('splitTiles').innerHTML = split(`Admissions by sex · ${m.year || ''}`, doc.charts.dengue_affected_by_gender)
+                            + split(`Deaths by sex · ${m.year || ''}`, doc.charts.dengue_death_by_gender);
+  $('tileNote').textContent = (prev ? `Changes are against the DGHS report of ${longDate(prev.date)}. ` : '') +
+    'Case fatality rate counts hospital admissions only, so it overstates the fatality rate among all infections.';
+}
+
+// ---------------------------------------------------------------- trends
+
+function drawDaily(doc){
+  $('dailyGrid').innerHTML = '';
+  let rows = dailySeries(doc);
+  if (!rows.length) return;
+  const avgAdm = rolling7(rows.map(r => r.admitted)), avgDth = rolling7(rows.map(r => r.deaths));
+  const start = state.range === 'all' ? 0 : Math.max(0, rows.length - +state.range);
+  rows = rows.slice(start);
+  const labels = rows.map(r => shortDate(r.date));
+  const thin = rows.length > 120;
+  [['admit', 'Daily hospital admissions', '--s1', 'admitted', avgAdm, 'Admitted'],
+   ['death', 'Daily deaths', '--deaths', 'deaths', avgDth, 'Deaths']].forEach(([id, title, color, field, avg, label]) => {
+    const total = rows.reduce((t, r) => t + (r[field] || 0), 0);
+    const el = card('dailyGrid', {title, full:true,
+      sub:`${fmt(total)} ${field === 'admitted' ? 'admissions' : 'deaths'} between ${longDate(rows[0].date)} and ${longDate(rows[rows.length - 1].date)}` +
+          (field === 'deaths' ? '. Days with no reported death count as zero.' : '.'),
+      control:`<div class="legend">${key(color, label, 'sq')}${key(color, '7-day average')}</div>`});
+    const o = baseOptions();
+    o.plugins.tooltip.callbacks.title = items => longDate(rows[items[0].dataIndex].date);
+    chart(id, el.querySelector('canvas'), {type:'bar', data:{labels, datasets:[
+      line('7-day average', avg.slice(start), CSS(color), {borderWidth:2.5, fill:'origin', backgroundColor:fade(CSS(color), .18), order:0}),
+      bar(label, rows.map(r => r[field]), alpha(CSS(color), .38), {borderRadius:thin ? 1 : 3, order:1,
+        categoryPercentage:thin ? 1 : .85, barPercentage:thin ? .8 : .9}),
+    ]}, options:o});
+  });
+}
+
+// Previous years come from the comparison chart; the current year's counts
+// live in a different chart, matched by category label.
+function drawYearComparison(doc, {id, title, sub, prevId, currentId, currentSeries, labelsFrom, full = true}){
   const prev = doc.charts[prevId], cur = doc.charts[currentId];
   if (!prev) return;
-  const labels = (labelsFrom ? labelsFrom(prev) : prev.categories);
-  const datasets = [];
+  const labels = labelsFrom ? labelsFrom(prev) : prev.categories;
+  const datasets = [], keys = [];
   if (cur){
     const s = cur.series.find(x => currentSeries.test(x.name || '')) || cur.series[0];
     const lookup = {};
     cur.categories.forEach((c, i) => { lookup[c.trim().toLowerCase()] = yOf(s.data[i]); });
     const data = labels.map(l => lookup[l.trim().toLowerCase()] ?? null);
-    datasets.push(line(String(doc.meta.year || 'Current year'), data, CSS('--s1'), {borderWidth:3, ...partialTail(data)}));
+    const yr = String(doc.meta.year || 'This year');
+    datasets.push(line(yr, data, CSS('--s1'), {borderWidth:3, fill:'origin', backgroundColor:fade(CSS('--s1'), .16), order:0, ...partialTail(data)}));
+    keys.push(key('--s1', yr));
   }
   const prevColors = ['--s2', '--s3', '--s4'];
   prev.series
     .map(s => ({s, year:(/(\d{4})/.exec(s.name || '') || [])[1] || s.name}))
     .sort((a, b) => String(b.year).localeCompare(String(a.year)))
-    .forEach(({s, year}, i) => datasets.push(line(year,
-      labels.map((_, j) => yOf(s.data[prev.categories.indexOf(labels[j])]) ?? null),
-      CSS(prevColors[i] || '--context'), {borderWidth:1.5})));
-  plot(card(title, {full:true, caption}), {type:'line', data:{labels, datasets}, options:baseOptions()});
-}
-
-function drawDivisionWeeks(doc){
-  const c = doc.charts.affected_in_division_by_week;
-  if (!c) return;
-  const names = c.series.map(s => s.name);
-  if (!names.includes(state.highlight)) state.highlight = names[0];
-  const control = `<select id="divPick" aria-label="Highlight division">${names.map(n =>
-    `<option${n === state.highlight ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select>`;
-  const el = card(`Weekly admissions by division, ${doc.meta.year || ''}`.trim(),
-    {full:true, control, caption:'Highlighted division in color; the other divisions in gray for context. Dashed: latest week, still in progress.'});
-  const build = () => c.series.map(s => {
-    const on = s.name === state.highlight;
-    const data = s.data.map(yOf);
-    return line(s.name, data, on ? CSS('--s1') : CSS('--context'),
-      {borderWidth:on ? 3 : 1.25, order:on ? 0 : 1, ...(on ? partialTail(data) : {})});
-  });
-  const opts = baseOptions({legend:false});
-  opts.interaction = {mode:'nearest', intersect:false};
-  const chart = new Chart(el.querySelector('canvas'), {type:'line', data:{labels:c.categories, datasets:build()}, options:opts});
-  state.charts.push(chart);
-  el.querySelector('#divPick').addEventListener('change', e => {
-    state.highlight = e.target.value; chart.data.datasets = build(); chart.update();
-  });
-}
-
-function drawRanked(doc, id, title, color){
-  const c = doc.charts[id];
-  if (!c || !c.series[0]) return;
-  const rows = c.categories.map((l, i) => [l.trim(), yOf(c.series[0].data[i])])
-    .filter(r => r[1] != null).sort((a, b) => b[1] - a[1]);
-  plot(card(title), {type:'bar', data:{labels:rows.map(r => r[0]),
-    datasets:[bar(c.series[0].name || title, rows.map(r => r[1]), CSS(color))]},
-    options:(o => { o.scales.y.ticks.autoSkip = false; return o; })(baseOptions({legend:false, horizontal:true}))});
-}
-
-function drawPyramid(doc, id, title){
-  const c = doc.charts[id];
-  if (!c || !c.categories.length) return;   // older snapshots lack age labels
-  const male = c.series.find(s => /^male/i.test(s.name || '')), female = c.series.find(s => /^female/i.test(s.name || ''));
-  if (!male || !female) return;
-  const order = c.categories.map((l, i) => [l, i]).sort((a, b) => byAge(a[0], b[0]));
-  const opts = baseOptions({horizontal:true, stacked:true, abs:true});
-  opts.scales.y.ticks.autoSkip = false;
-  plot(card(title, {tall:true, parent:'ageCharts', caption:'Male to the left, female to the right. Age bands exactly as DGHS publishes them, including overlapping bands.'}), {
-    type:'bar', data:{labels:order.map(o => o[0]), datasets:[
-      bar('Male', order.map(([, i]) => -Math.abs(male.data[i] || 0)), CSS('--male'), {borderSkipped:false, maxBarThickness:16}),
-      bar('Female', order.map(([, i]) => Math.abs(female.data[i] || 0)), CSS('--female'), {borderSkipped:false, maxBarThickness:16}),
-    ]}, options:opts});
+    .forEach(({s, year}, i) => {
+      const color = prevColors[i] || '--context';
+      datasets.push(line(year, labels.map(l => yOf(s.data[prev.categories.map(x => x.trim()).indexOf(l.trim())]) ?? null), CSS(color), {borderWidth:1.75, order:1}));
+      keys.push(key(color, year));
+    });
+  keys.push(`<span><i class="dash"></i>in progress</span>`);
+  const el = card('trendGrid', {title, sub, full, legend:keys.join('')});
+  chart(id, el.querySelector('canvas'), {type:'line', data:{labels, datasets}, options:baseOptions({xMax:13})});
 }
 
 function drawYearly(doc){
   const c = doc.charts.year_case;
   if (!c || !c.series[0]) return;
-  const data = c.series[0].data.map(yOf);
-  const curYear = String(doc.meta.year);
-  plot(card('Admissions per year', {caption:`${curYear} is year to date.`}), {type:'bar',
-    data:{labels:c.categories, datasets:[bar('Admitted', data,
-      c.categories.map(l => l === curYear ? CSS('--s1') : CSS('--context')))]},
-    options:baseOptions({legend:false})});
+  const data = c.series[0].data.map(yOf), cur = String(doc.meta.year);
+  const peak = data.indexOf(Math.max(...data)), curIdx = c.categories.indexOf(cur);
+  const el = card('trendGrid', {title:'Admissions per year', sub:`Since 2018. ${cur} is year to date.`});
+  const o = baseOptions({xMax:12});
+  o.plugins.valueLabels = {indices:[...new Set([peak, curIdx].filter(i => i >= 0))]};
+  o.layout = {padding:{top:18}};
+  chart('yearly', el.querySelector('canvas'), {type:'bar', data:{labels:c.categories, datasets:[bar('Admitted', data,
+    c.categories.map(l => l === cur ? CSS('--s1') : CSS('--context')), {maxBarThickness:38})]}, options:o});
 }
 
-function drawTable(t){
-  const el = document.createElement('div');
-  el.className = 'card';
-  const ageCol = t.headers[0];
-  const rows = /age/i.test(ageCol || '') ? [...t.rows].sort((a, b) => byAge(String(a[ageCol] || ''), String(b[ageCol] || ''))) : t.rows;
-  const head = t.headers.map(h => `<th scope="col">${esc(h)}</th>`).join('');
-  const body = rows.map(r =>
-    `<tr>${t.headers.map(h => `<td>${typeof r[h] === 'number' ? fmt(r[h]) : esc(r[h] || '—')}</td>`).join('')}</tr>`).join('');
-  el.innerHTML = `<div class="card-head"><h2>${esc(t.title || 'Table')}</h2></div>
-    <div class="scroll"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
-  $('tables').appendChild(el);
+// ---------------------------------------------------------------- geography
+
+function rankList(doc, casesId, deathsId){
+  const cc = doc.charts[casesId], dc = doc.charts[deathsId];
+  if (!cc || !cc.series[0]) return '<p class="sub">Not available in this report.</p>';
+  const deaths = {};
+  if (dc && dc.series[0]) dc.categories.forEach((l, i) => { deaths[placeKey(l)] = yOf(dc.series[0].data[i]); });
+  const rows = cc.categories.map((l, i) => ({name:placeName(l), cases:yOf(cc.series[0].data[i]), deaths:deaths[placeKey(l)] ?? 0}))
+    .filter(r => r.cases != null).sort((a, b) => b.cases - a.cases);
+  const maxC = Math.max(...rows.map(r => r.cases), 1), maxD = Math.max(...rows.map(r => r.deaths), 1);
+  return `<div class="rank" role="table">
+    <div class="h" role="columnheader">Area</div><div class="h" role="columnheader">Admitted</div><div class="h" role="columnheader">Deaths</div><div class="h cfr" role="columnheader" style="text-align:right">CFR</div>
+    ${rows.map(r => `
+      <div class="c name" role="cell" title="${esc(r.name)}">${esc(r.name)}</div>
+      <div class="c" role="cell"><div class="meter"><span style="width:${100 * r.cases / maxC}%;background:var(--s1)"></span></div><span class="val">${fmt(r.cases)}</span></div>
+      <div class="c" role="cell"><div class="meter"><span style="width:${100 * r.deaths / maxD}%;background:var(--deaths)"></span></div><span class="val">${fmt(r.deaths)}</span></div>
+      <div class="c r cfr" role="cell">${r.cases ? (100 * r.deaths / r.cases).toFixed(2) : '—'}</div>`).join('')}
+  </div>`;
 }
 
-// ---------------------------------------------------------------- page
+function drawGeography(doc){
+  card('geoGrid', {title:`Year to date · ${doc.meta.year || ''}`, sub:'Since 1 January, sorted by admissions.',
+    body:rankList(doc, 'div_city_cor_case_in_year', 'div_city_cor_death_in_year')});
+  card('geoGrid', {title:'Last 24 hours', sub:'From the latest daily report.',
+    body:rankList(doc, 'div_city_cor_case_last_24_hour', 'div_city_cor_death_last_24_hour')});
+
+  const c = doc.charts.affected_in_division_by_week;
+  if (!c) return;
+  const names = c.series.map(s => s.name);
+  if (!names.includes(state.highlight)) state.highlight = names[0];
+  const chips = `<div class="chips" role="group" aria-label="Highlight division">${names.map(n =>
+    `<button type="button" aria-pressed="${n === state.highlight}">${esc(n)}</button>`).join('')}</div>`;
+  const el = card('geoGrid', {title:`Weekly admissions by division · ${doc.meta.year || ''}`, full:true,
+    sub:'Pick a division to highlight it; the others stay grey for context. The dashed segment is the week in progress.', control:chips});
+  const build = () => c.series.map(s => {
+    const on = s.name === state.highlight, data = s.data.map(yOf);
+    return line(s.name, data, on ? CSS('--s1') : CSS('--context'), {borderWidth:on ? 3 : 1.25, order:on ? 0 : 1,
+      ...(on ? {fill:'origin', backgroundColor:fade(CSS('--s1'), .16), ...partialTail(data)} : {pointHoverRadius:0})});
+  });
+  const o = baseOptions({xMax:13});
+  o.plugins.tooltip.filter = item => item.dataset.label === state.highlight;
+  const ch = chart('divweek', el.querySelector('canvas'), {type:'line', data:{labels:c.categories, datasets:build()}, options:o});
+  el.querySelectorAll('.chips button').forEach(b => b.addEventListener('click', () => {
+    state.highlight = b.textContent;
+    el.querySelectorAll('.chips button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    ch.data.datasets = build(); ch.update();
+  }));
+}
+
+// ---------------------------------------------------------------- age & sex
+
+function drawPyramid(doc, id, title){
+  const c = doc.charts[id];
+  if (!c || !c.categories.length) return false;   // snapshots before 2026-10-07 lack age labels
+  const male = c.series.find(s => /^male/i.test(s.name || '')), female = c.series.find(s => /^female/i.test(s.name || ''));
+  if (!male || !female) return false;
+  const order = c.categories.map((l, i) => [l, i]).sort((a, b) => byAge(a[0], b[0]));
+  const o = baseOptions({horizontal:true, stacked:true, abs:true});
+  o.scales.y.ticks.autoSkip = false;
+  o.scales.y.border = {display:false};
+  o.interaction = {mode:'index', axis:'y', intersect:false};
+  const el = card('ageGrid', {title, legend:key('--male', 'Male', 'sq') + key('--female', 'Female', 'sq'), box:'tall'});
+  chart(id, el.querySelector('canvas'), {type:'bar', data:{labels:order.map(o => o[0]), datasets:[
+    bar('Male', order.map(([, i]) => -Math.abs(male.data[i] || 0)), CSS('--male'), {borderSkipped:false, borderRadius:3, barPercentage:.82, categoryPercentage:.92}),
+    bar('Female', order.map(([, i]) => Math.abs(female.data[i] || 0)), CSS('--female'), {borderSkipped:false, borderRadius:3, barPercentage:.82, categoryPercentage:.92}),
+  ]}, options:o});
+  return true;
+}
+
+function tableLabel(t){
+  const title = t.title || '';
+  const kind = /death/i.test(title) ? 'Deaths' : 'Admissions';
+  const scope = /24 hours/i.test(title) ? 'last 24h' : /within/i.test(title) ? 'city corp.' : /outside/i.test(title) ? 'outside city corp.' : 'year to date';
+  return `${kind} · ${scope}`;
+}
+
+function drawTables(doc){
+  const tables = doc.tables || [];
+  if (!tables.length){ $('tableCard').hidden = true; return; }
+  $('tableCard').hidden = false;
+  state.table = Math.min(state.table, tables.length - 1);
+  const t = tables[state.table], ageCol = t.headers[0];
+  const isTotal = r => /total/i.test(String(r[ageCol] || ''));
+  const body = t.rows.filter(r => !isTotal(r)).sort((a, b) => byAge(String(a[ageCol] || ''), String(b[ageCol] || '')));
+  const totals = t.rows.filter(isTotal);
+  const barCols = {Male:'--male', Female:'--female'};
+  const max = {};
+  Object.keys(barCols).forEach(h => { max[h] = Math.max(1, ...body.map(r => typeof r[h] === 'number' ? r[h] : 0)); });
+  const cell = (r, h, i) => {
+    const v = r[h];
+    if (i === 0) return `<td${!isTotal(r) && ageKey(String(v || ''))[0] ? ' class="glitch" title="Not a valid age band in the source data"' : ''}>${esc(v || '—')}</td>`;
+    if (barCols[h] && typeof v === 'number' && !isTotal(r))
+      return `<td><div class="cellbar"><div class="meter"><span style="width:${100 * v / max[h]}%;background:var(${barCols[h]})"></span></div>${fmt(v)}</div></td>`;
+    return `<td>${typeof v === 'number' ? fmt(v) : esc(v || '—')}</td>`;
+  };
+  const row = (r, cls = '') => `<tr${cls ? ` class="${cls}"` : ''}>${t.headers.map((h, i) => cell(r, h, i)).join('')}</tr>`;
+  $('tableCard').innerHTML = `
+    <div class="card-head"><div><h3>Age group tables</h3><p class="sub">${esc(t.title || '')}</p></div></div>
+    <div class="tabs" role="tablist">${tables.map((x, i) =>
+      `<button type="button" role="tab" aria-selected="${i === state.table}" data-i="${i}">${esc(tableLabel(x))}</button>`).join('')}</div>
+    <div class="scroll"><table><thead><tr>${t.headers.map(h => `<th scope="col">${esc(h)}</th>`).join('')}</tr></thead>
+      <tbody>${body.map(r => row(r)).join('')}${totals.map(r => row(r, 'total')).join('')}</tbody></table></div>`;
+  $('tableCard').querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
+    state.table = +b.dataset.i; drawTables(doc);
+    $('tableCard').querySelector(`.tabs button[data-i="${state.table}"]`).focus();
+  }));
+}
+
+// ---------------------------------------------------------------- data & API
 
 function endpoints(){
   const base = location.href.replace(/[?#].*$/, '').replace(/[^/]*$/, '');
   const rows = [
-    ['data/summary.json', 'Headline numbers only — small, ideal for frequent polling'],
-    ['data/latest.json', 'Full dataset: every KPI, chart series and table'],
-    ['data/timeseries.csv', 'One row per DGHS report: 24h, weekly and YTD cases & deaths, CFR (also .json)'],
-    ['data/daily.csv', 'Admissions and deaths per calendar day, current year'],
-    ['data/history/index.json', 'List of archived report dates'],
-    ['data/history/YYYY-MM-DD.json', 'Full snapshot for one past report date'],
+    ['Summary', 'data/summary.json', 'Headline numbers only — small, ideal for frequent polling.'],
+    ['Full dataset', 'data/latest.json', 'Every KPI, all 27 chart series and all 8 tables.'],
+    ['Report time series', 'data/timeseries.csv', 'One row per DGHS report: 24h, weekly and YTD figures, CFR. Also as .json.'],
+    ['Daily series', 'data/daily.csv', 'Admissions and deaths per calendar day, current year.'],
+    ['Archive index', 'data/history/index.json', 'Dates with a full archived snapshot.'],
+    ['Archived snapshot', 'data/history/YYYY-MM-DD.json', 'The full dataset as published on one report date.'],
   ];
-  $('endpoints').innerHTML = rows.map(([path, what]) => {
-    const link = path.includes('YYYY') ? `<code>${esc(base + path)}</code>`
-      : `<a href="${esc(path)}"><code>${esc(base + path)}</code></a>`;
-    return `<div class="endpoint">${link}<span class="what">${what}</span></div>`;
+  $('endpoints').innerHTML = rows.map(([name, path, what]) => {
+    const real = !path.includes('YYYY'), csv = path.endsWith('.csv');
+    return `<div class="ep"><div class="top"><b>${esc(name)}</b><span class="acts">
+      ${real ? `<a class="btn" href="${esc(path)}" ${csv ? 'download' : 'target="_blank" rel="noopener"'}>${csv ? 'Download' : 'Open'}</a>` : ''}
+      <button class="btn" type="button" data-copy="${esc(base + path)}">Copy URL</button></span></div>
+      <code>${esc(base + path)}</code><p>${esc(what)}</p></div>`;
   }).join('');
+  $('endpoints').querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(b.dataset.copy); b.textContent = 'Copied'; }
+    catch (e) { b.textContent = 'Copy failed'; }
+    setTimeout(() => { b.textContent = 'Copy URL'; }, 1400);
+  }));
 }
 
-function freshness(doc, isSnapshot){
-  const updated = doc.meta.last_updated;
-  const days = updated ? Math.floor((Date.now() - Date.parse(updated + 'T00:00:00Z')) / 86400000) : null;
-  $('freshText').textContent = !updated ? 'report date unknown'
-    : isSnapshot ? `Archived report ${doc.meta.last_updated_label}`
-    : `DGHS report date ${doc.meta.last_updated_label}` + (days > 1 ? ` · ${days} days old` : '');
-  $('freshDot').classList.toggle('stale', isSnapshot || (days !== null && days > 2));
-}
+// ---------------------------------------------------------------- page
 
 function render(){
   const doc = state.doc;
-  state.charts.forEach(c => c.destroy());
-  state.charts = [];
-  ['charts', 'ageCharts', 'tables'].forEach(id => { $(id).innerHTML = ''; });
+  applyChartTheme();
+  Object.values(state.charts).forEach(c => c.destroy());
+  state.charts = {};
+  ['trendGrid', 'geoGrid', 'ageGrid'].forEach(id => { $(id).innerHTML = ''; });
 
-  kpiCards(doc);
+  hero(doc);
+  tiles(doc);
   drawDaily(doc);
-  drawYearComparison(doc, {title:'Weekly admissions: this year vs previous years',
+  drawYearComparison(doc, {id:'weekly', title:'Weekly admissions, this year against the last three',
+    sub:'By epidemiological week. The dashed segment is the week in progress.',
     prevId:'by_week_case', currentId:'death_case_ration_by_week', currentSeries:/admitted/i,
-    labelsFrom:c => c.categories.filter(l => l.trim()),
-    caption:`Dashed: ${doc.summary.epi_week || 'the latest week'}, still in progress.`});
-  drawDivisionWeeks(doc);
-  drawRanked(doc, 'division_case', `Admissions by division, ${doc.meta.year || ''}`.trim(), '--s1');
-  drawRanked(doc, 'division_death', `Deaths by division, ${doc.meta.year || ''}`.trim(), '--deaths');
-  drawYearComparison(doc, {title:'Monthly admissions: this year vs previous years',
+    labelsFrom:c => c.categories.filter(l => l.trim())});
+  drawYearComparison(doc, {id:'monthly', title:'Monthly admissions', full:false,
+    sub:'The dashed segment is the current month, still in progress.',
     prevId:'by_month_case', currentId:'monthly_case_and_death_in_year', currentSeries:/admitted/i,
-    caption:'Dashed: the current month, still in progress.'});
+    labelsFrom:c => c.categories.map(l => l.trim())});
   drawYearly(doc);
-  drawRanked(doc, 'div_city_cor_case_last_24_hour', 'Last 24h admissions by division & city corporation', '--s1');
-  drawPyramid(doc, 'dengue_affected_by_age_group', `Admissions by age and sex, ${doc.meta.year || ''}`.trim());
-  drawPyramid(doc, 'dengue_death_by_age_group', `Deaths by age and sex, ${doc.meta.year || ''}`.trim());
-  doc.tables.forEach(drawTable);
+  drawGeography(doc);
+  const a = drawPyramid(doc, 'dengue_affected_by_age_group', `Admissions by age and sex · ${doc.meta.year || ''}`);
+  const d = drawPyramid(doc, 'dengue_death_by_age_group', `Deaths by age and sex · ${doc.meta.year || ''}`);
+  if (!a && !d) card('ageGrid', {title:'Age pyramids unavailable', full:true,
+    body:'<p class="sub">This report predates age-band labels in the feed. Use the tables below, or pick a later report.</p>'});
+  drawTables(doc);
 }
 
 async function getJSON(path){
@@ -458,27 +846,40 @@ async function getJSON(path){
 }
 
 async function load(date){
-  const isSnapshot = !!date;
   try {
-    state.doc = await getJSON(isSnapshot ? `data/history/${date}.json` : 'data/latest.json');
+    state.doc = await getJSON(date ? `data/history/${date}.json` : 'data/latest.json');
     $('error').hidden = true;
   } catch (err) {
     $('error').hidden = false;
     $('error').textContent = 'Could not load the data — ' + err.message +
       '. If this is a fresh repository, run the "Update dengue data" workflow once.';
-    $('freshText').textContent = 'no data';
+    $('freshText').textContent = 'No data';
     $('freshDot').classList.add('stale');
+    $('headline').textContent = 'Data unavailable';
     return;
   }
-  freshness(state.doc, isSnapshot);
   render();
   const d = state.doc;
   $('sample').textContent = JSON.stringify({schema_version:d.schema_version, fetched_at:d.fetched_at,
     last_updated:d.meta.last_updated, year:d.meta.year, summary:d.summary}, null, 2);
 }
 
+function setRange(r){
+  state.range = r;
+  try { localStorage.setItem('dengue-range', r); } catch (e) {}
+  $('rangeSeg').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.range === r));
+}
+
 async function init(){
   endpoints();
+  try { const r = localStorage.getItem('dengue-range'); if (['30', '90', 'all'].includes(r)) state.range = r; } catch (e) {}
+  setRange(state.range);
+  $('rangeSeg').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b || !state.doc) return;
+    setRange(b.dataset.range);
+    drawDaily(state.doc);
+  });
   // Optional extras: the page still works if these are missing.
   const [ts, index] = await Promise.all([
     getJSON('data/timeseries.json').catch(() => null),
@@ -486,13 +887,10 @@ async function init(){
   ]);
   state.timeseries = ts;
   const pick = $('snapshot');
-  [...index].reverse().forEach(d => pick.insertAdjacentHTML('beforeend', `<option value="${esc(d)}">${esc(d)}</option>`));
+  [...index].reverse().forEach(d => pick.insertAdjacentHTML('beforeend', `<option value="${esc(d)}">${esc(shortDate(d))} ${esc(d.slice(0, 4))}</option>`));
   pick.addEventListener('change', () => load(pick.value));
   await load('');
 }
-
-// Re-read the theme tokens when the OS switches light/dark.
-matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (state.doc) render(); });
 
 init();
 </script>
