@@ -10,17 +10,38 @@ on:
     branches: [main]
     paths:
       - 'scraper/**'
+      - 'tests/**'
+      - '.github/workflows/update-data.yml'
+  pull_request:             # PRs only run the tests; they never scrape or commit
+    paths:
+      - 'scraper/**'
+      - 'tests/**'
       - '.github/workflows/update-data.yml'
 
 permissions:
   contents: write
+  issues: write
 
 concurrency:
-  group: update-dengue-data
+  group: update-dengue-data-${{ github.event_name == 'pull_request' && github.ref || 'main' }}
   cancel-in-progress: false
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Parser tests
+        run: python -m unittest discover -s tests -v
+
   scrape:
+    needs: test
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -41,5 +62,21 @@ jobs:
             echo "No change in published figures."
           else
             git commit -m "data: DGHS dengue update $(date -u '+%Y-%m-%d %H:%M UTC')"
+            # Someone may have pushed to main while the scrape ran.
+            git pull --rebase origin main
             git push
+          fi
+
+      # A failing schedule is otherwise silent: the feed just stops updating.
+      # Open one issue (not one per run) so the maintainer gets notified.
+      - name: Open an issue if the scheduled scrape failed
+        if: failure() && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Scheduled DGHS scrape is failing"
+          if [ -z "$(gh issue list --state open --search "in:title \"$title\"" --json number --jq '.[].number')" ]; then
+            gh issue create --title "$title" --body "The scheduled update failed in run ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}.
+
+          The site keeps serving the last good data. Common causes: DGHS changed the page layout (sanity check failed), or the source was unreachable for all retries. Close this issue once a run succeeds again."
           fi

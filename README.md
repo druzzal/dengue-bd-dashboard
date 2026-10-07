@@ -15,6 +15,8 @@ the result, so your app never has to parse HTML.
 |---|---|
 | `docs/data/summary.json` | Headline numbers only (~350 bytes). Poll this. |
 | `docs/data/latest.json` | Everything: KPIs, all 27 chart series, all 8 tables (~40 KB). |
+| `docs/data/timeseries.json` / `.csv` | One row per archived report date: 24h, weekly and YTD cases/deaths, discharges, CFR. |
+| `docs/data/daily.csv` | Admissions and deaths per calendar day for the current year (deaths zero-filled). |
 | `docs/data/history/index.json` | Array of archived report dates. |
 | `docs/data/history/YYYY-MM-DD.json` | Full snapshot for one past report date. |
 
@@ -57,6 +59,19 @@ Your dashboard is then live at `https://druzzal.github.io/dengue-bd-dashboard/`.
 
 ---
 
+## The dashboard
+
+`docs/index.html` renders the feed with no build step:
+
+- Headline tiles with the change since the previous DGHS report, case fatality rate, and sex split.
+- Daily admissions and deaths with a 7-day average.
+- This year's weekly and monthly admissions against 2023–2025 (the in-progress week/month is dashed).
+- Weekly admissions per division, with one division highlighted at a time.
+- Division rankings, yearly totals, and age-sex pyramids for cases and deaths.
+- A **Report** picker to view any archived snapshot from `history/`.
+
+---
+
 ## How updating works
 
 `.github/workflows/update-data.yml` runs `scraper/scrape.py` every 3 hours and on demand.
@@ -65,7 +80,11 @@ cadence catches late or re-issued updates the same day. If nothing changed, the 
 
 Before writing, the scraper runs a sanity check (cumulative count present, ~27 charts parsed,
 report date found) and **fails loudly instead of publishing garbage** if DGHS redesigns the page —
-so your app keeps serving the last good data rather than empty values.
+so your app keeps serving the last good data rather than empty values. When a scheduled run fails,
+the workflow opens a GitHub issue (one at a time, not one per run) so the outage doesn't go unnoticed.
+
+Parser tests (`tests/`) run before every scrape and on pull requests. They parse a saved copy of the
+DGHS page (`tests/fixtures/`), so a breaking scraper change never reaches the published feed.
 
 > **Note:** GitHub disables scheduled workflows in repos with no activity for 60 days. The daily data
 > commits keep this repo active, so it stays on. If the feed ever goes quiet, re-enable it from the Actions tab.
@@ -140,6 +159,14 @@ use that one to decide whether the data is new.
 Chart series come in two shapes: a flat number array, or `{"name": "Male", "y": 25367}` objects for
 pie charts. Numbers are parsed to real numbers (`"7,446"` → `7446`); missing values are `null`.
 
+The age-group charts (`dengue_*_by_age_group`) are population pyramids: **male values are negative**,
+exactly as DGHS feeds them to Highcharts. Use `Math.abs()` for counts. Snapshots archived before
+2026-10-07 have empty `categories` for these four charts (a since-fixed parser gap).
+
+`death_case` lists only days with at least one death; use `daily.csv` for a gap-free daily series.
+`by_week_case` and `by_month_case` hold 2023–2025 only — the current year's weekly counts are in
+`death_case_ration_by_week` and monthly counts in `monthly_case_and_death_in_year`.
+
 ### Useful chart keys
 
 | Key | Chart |
@@ -165,6 +192,8 @@ Run `python3 -c "import json;print(list(json.load(open('docs/data/latest.json'))
 python3 scraper/scrape.py                     # fetch live and write docs/data/
 DENGUE_HTML_FILE=saved.html python3 scraper/scrape.py   # parse a saved page instead
 DENGUE_FORCE_WRITE=1 python3 scraper/scrape.py          # write even if sanity checks fail
+DENGUE_DATA_DIR=/tmp/out python3 scraper/scrape.py      # write somewhere other than docs/data
+python3 -m unittest discover -s tests                   # run the parser tests
 ```
 
 Standard library only — no dependencies to install.

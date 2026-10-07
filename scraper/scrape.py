@@ -11,10 +11,14 @@ parses all three and writes a versioned JSON document that apps can poll.
 Stdlib only - no pip install needed in CI.
 """
 
+import csv
+import glob
+import html as htmllib
 import json
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
@@ -53,6 +57,8 @@ def fetch(url=SOURCE_URL, retries=3, timeout=60):
         except (urllib.error.URLError, urllib.error.HTTPError, OSError) as exc:
             last = exc
             print(f"fetch attempt {attempt + 1}/{retries} failed: {exc}", file=sys.stderr)
+            if attempt + 1 < retries:
+                time.sleep(10 * (attempt + 1))
     raise SystemExit(f"could not fetch {url}: {last}")
 
 
@@ -61,9 +67,7 @@ def fetch(url=SOURCE_URL, retries=3, timeout=60):
 # --------------------------------------------------------------------------
 
 def strip_tags(fragment):
-    text = re.sub(r"<[^>]+>", " ", fragment)
-    text = (text.replace("&nbsp;", " ").replace("&amp;", "&")
-                .replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", '"'))
+    text = htmllib.unescape(re.sub(r"<[^>]+>", " ", fragment)).replace("\xa0", " ")
     return re.sub(r"\s+", " ", text).strip()
 
 
@@ -84,15 +88,17 @@ def to_number(text):
 
 
 def parse_site_date(text):
-    """'05-Sep-2026' -> '2026-09-05' (ISO), else None."""
+    """'05-Sep-2026' or chart-style '05-Sep-26' -> '2026-09-05' (ISO), else None."""
     if not text:
         return None
-    m = re.search(r"(\d{1,2})-([A-Za-z]{3})-(\d{4})", text)
+    m = re.search(r"(\d{1,2})-([A-Za-z]{3})-(\d{4}|\d{2})\b", text)
     if not m:
         return None
     day, mon, year = m.group(1), m.group(2).lower(), m.group(3)
     if mon not in MONTHS:
         return None
+    if len(year) == 2:
+        year = "20" + year
     return f"{year}-{MONTHS[mon]:02d}-{int(day):02d}"
 
 
@@ -157,8 +163,22 @@ def js_array_at(text, key):
     return None
 
 
-def parse_categories(block):
+def parse_categories(block, preamble=""):
+    """Category labels of the chart's x axis.
+
+    Most charts inline them (`categories: ["a", "b"]`), but the age-group
+    pyramids declare `var categories = [...]` just before `Highcharts.chart(`
+    and reference it by name, so resolve that from the preceding script text.
+    """
     raw = js_array_at(block, "categories")
+    if not raw:
+        ref = re.search(r"\bcategories\s*:\s*([A-Za-z_$][\w$]*)", block)
+        if ref:
+            decls = list(re.finditer(r"\b(?:var|let|const)\s+%s\s*=\s*\["
+                                     % re.escape(ref.group(1)), preamble))
+            if decls:
+                raw = js_array_at(preamble[decls[-1].start():].replace("=", ":", 1),
+                                  ref.group(1))
     if not raw:
         return []
     return [strip_tags(double or single)
@@ -230,9 +250,10 @@ def extract_charts(html):
         if not block:
             continue
         div = html.find('id="%s"' % chart_id)
+        script_start = html.rfind("<script", 0, m.start())
         charts[chart_id] = {
             "title": nearest_title(html, div if div != -1 else m.start()),
-            "categories": parse_categories(block),
+            "categories": parse_categories(block, html[max(script_start, 0):m.start()]),
             "series": parse_series(block),
         }
     return charts
@@ -308,7 +329,7 @@ def extract_summary(html, charts):
 
     discharged = charts.get("dengue_discharged_total_and_24_hours", {})
     for s in discharged.get("series", []):
-        if s.get("name", "").lower().startswith("discharged from") and s.get("data"):
+        if (s.get("name") or "").lower().startswith("discharged from") and s.get("data"):
             summary["discharged_ytd"] = s["data"][0]
 
     # Cumulative tiles are the authoritative YTD figures; fall back to the charts.
@@ -387,9 +408,74 @@ def write_json(path, payload):
         fh.write("\n")
 
 
+# --------------------------------------------------------------------------
+# derived exports (rebuilt from the archive; deterministic, so no-op runs
+# produce no diff)
+# --------------------------------------------------------------------------
+
+SUMMARY_FIELDS = ["epi_week", "last24_cases", "last24_deaths", "week_cases", "week_deaths",
+                  "ytd_cases", "ytd_deaths", "discharged_last24", "discharged_ytd"]
+
+
+def build_timeseries(history_dir):
+    """One row per archived report date: the headline numbers DGHS published that day."""
+    rows = []
+    for path in sorted(glob.glob(os.path.join(history_dir, "????-??-??.json"))):
+        try:
+            with open(path, encoding="utf-8") as fh:
+                snap = json.load(fh)
+        except (ValueError, OSError):
+            continue
+        s = snap.get("summary", {})
+        row = {"date": snap.get("meta", {}).get("last_updated")
+               or os.path.basename(path)[:-5]}
+        row.update({k: s.get(k) for k in SUMMARY_FIELDS})
+        cases, deaths = s.get("ytd_cases"), s.get("ytd_deaths")
+        row["cfr_pct"] = round(100 * deaths / cases, 3) if cases and deaths is not None else None
+        rows.append(row)
+    return rows
+
+
+def daily_series(doc):
+    """Admissions and deaths per calendar day for the current year, from the date charts."""
+    def by_date(chart_id):
+        chart = doc["charts"].get(chart_id) or {}
+        series = chart.get("series") or [{}]
+        out = {}
+        for label, value in zip(chart.get("categories", []), series[0].get("data", [])):
+            iso = parse_site_date(label)
+            if iso:
+                out[iso] = value
+        return out
+
+    admitted, deaths = by_date("confirmed_case"), by_date("death_case")
+    # The death chart only lists days with at least one death; within the
+    # admissions date range a missing day therefore means zero.
+    return [{"date": d, "admitted": admitted[d], "deaths": deaths.get(d, 0)}
+            for d in sorted(admitted)]
+
+
+def write_csv(path, rows):
+    if not rows:
+        return
+    with open(path, "w", encoding="utf-8", newline="") as fh:
+        writer = csv.DictWriter(fh, fieldnames=list(rows[0]), lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def write_derived(data_dir, doc):
+    series = build_timeseries(os.path.join(data_dir, "history"))
+    write_json(os.path.join(data_dir, "timeseries.json"),
+               {"schema_version": SCHEMA_VERSION, "fields": ["date"] + SUMMARY_FIELDS + ["cfr_pct"],
+                "rows": series})
+    write_csv(os.path.join(data_dir, "timeseries.csv"), series)
+    write_csv(os.path.join(data_dir, "daily.csv"), daily_series(doc))
+
+
 def main():
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    data_dir = os.path.join(root, "docs", "data")
+    data_dir = os.environ.get("DENGUE_DATA_DIR") or os.path.join(root, "docs", "data")
 
     html_override = os.environ.get("DENGUE_HTML_FILE")
     if html_override:
@@ -407,6 +493,7 @@ def main():
 
     latest_path = os.path.join(data_dir, "latest.json")
     if unchanged_since_last_run(doc, latest_path):
+        write_derived(data_dir, doc)
         print(f"no change: DGHS figures for {doc['meta']['last_updated']} already published")
         return
 
@@ -438,6 +525,7 @@ def main():
     if report_date and report_date not in existing:
         existing.append(report_date)
     write_json(index_path, sorted(existing))
+    write_derived(data_dir, doc)
 
     print(f"ok: {report_date} | ytd_cases={doc['summary'].get('ytd_cases')} "
           f"ytd_deaths={doc['summary'].get('ytd_deaths')} "

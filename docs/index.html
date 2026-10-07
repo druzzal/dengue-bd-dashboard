@@ -8,44 +8,71 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
   :root{
+    color-scheme:light;
     --bg:#f6f7f9; --panel:#ffffff; --ink:#16202c; --muted:#5c6b7a;
-    --line:#e2e7ee; --accent:#337ab7; --danger:#d1495b; --ok:#2a9d5c;
+    --line:#e2e7ee; --accent:#2a78d6; --warn:#b26b00; --ok:#2a9d5c;
     --shadow:0 1px 2px rgba(16,32,48,.06),0 4px 16px rgba(16,32,48,.05);
+    /* chart roles: categorical slots in fixed order, deaths keep their own hue */
+    --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+    --deaths:#e34948; --context:#c3c8cf; --male:#2a78d6; --female:#eb6834;
   }
   @media (prefers-color-scheme: dark){
-    :root{
+    :root:not([data-theme="light"]){
+      color-scheme:dark;
       --bg:#11161d; --panel:#182029; --ink:#e8eef5; --muted:#93a3b4;
-      --line:#26313d; --accent:#5aa9e6; --danger:#ff7a8a; --ok:#4cc38a;
+      --line:#26313d; --accent:#5aa9e6; --warn:#e0a33e; --ok:#4cc38a;
       --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 16px rgba(0,0,0,.3);
+      --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+      --deaths:#e66767; --context:#3c4753; --male:#3987e5; --female:#d95926;
     }
+  }
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --bg:#11161d; --panel:#182029; --ink:#e8eef5; --muted:#93a3b4;
+    --line:#26313d; --accent:#5aa9e6; --warn:#e0a33e; --ok:#4cc38a;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 16px rgba(0,0,0,.3);
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+    --deaths:#e66767; --context:#3c4753; --male:#3987e5; --female:#d95926;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);
        font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
-  .wrap{max-width:1180px;margin:0 auto;padding:24px 18px 60px}
+  .wrap{max-width:1180px;margin:0 auto;padding:24px 16px 60px}
   header.top{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start;justify-content:space-between;margin-bottom:22px}
   h1{font-size:1.5rem;margin:0 0 4px;letter-spacing:-.01em}
   .sub{color:var(--muted);font-size:.9rem;margin:0}
+  .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
   .badge{display:inline-flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--line);
          border-radius:999px;padding:6px 13px;font-size:.82rem;color:var(--muted);box-shadow:var(--shadow)}
   .dot{width:8px;height:8px;border-radius:50%;background:var(--ok)}
-  .dot.stale{background:#e0a33e}
-  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:12px;margin-bottom:26px}
+  .dot.stale{background:var(--warn)}
+  select{font:inherit;font-size:.84rem;color:var(--ink);background:var(--panel);border:1px solid var(--line);
+         border-radius:8px;padding:5px 8px}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:12px}
   .kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 16px;box-shadow:var(--shadow)}
   .kpi .label{font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px}
   .kpi .value{font-size:1.85rem;font-weight:650;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-  .kpi.death .value{color:var(--danger)}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(430px,1fr));gap:16px}
+  .kpi .delta{font-size:.8rem;color:var(--muted);margin-top:2px;font-variant-numeric:tabular-nums}
+  .kpi .split{display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px;margin:10px 0 6px}
+  .kpi .split span{display:block;height:100%}
+  .kpi .legend{font-size:.8rem;color:var(--muted);display:flex;justify-content:space-between;font-variant-numeric:tabular-nums}
+  .sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:0}
+  .note{font-size:.8rem;color:var(--muted);margin:0 0 26px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(430px,100%),1fr));gap:16px}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px 18px;box-shadow:var(--shadow);min-width:0}
-  .card h2{font-size:.98rem;margin:0 0 12px;font-weight:620}
+  .card-head{display:flex;flex-wrap:wrap;gap:8px 12px;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+  .card h2{font-size:.98rem;margin:0;font-weight:620}
+  .card .cap{font-size:.8rem;color:var(--muted);margin:6px 0 0}
   .card.full{grid-column:1/-1}
   .chart-box{position:relative;height:310px}
+  .chart-box.tall{height:460px}
   h3.section{font-size:.8rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);
              margin:30px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
   table{width:100%;border-collapse:collapse;font-size:.87rem}
   th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
   th:first-child,td:first-child{text-align:left}
-  thead th{color:var(--muted);font-weight:600;font-size:.76rem;text-transform:uppercase;letter-spacing:.04em}
+  thead th{color:var(--muted);font-weight:600;font-size:.76rem;text-transform:uppercase;letter-spacing:.04em;
+           position:sticky;top:0;background:var(--panel)}
   .scroll{overflow-x:auto;max-height:420px;overflow-y:auto}
   code{background:rgba(127,146,166,.14);padding:2px 6px;border-radius:5px;
        font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
@@ -56,7 +83,7 @@
   .endpoint .what{color:var(--muted);font-size:.86rem;flex:1 1 210px}
   footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:.82rem}
   a{color:var(--accent)}
-  .err{background:var(--panel);border:1px solid var(--danger);border-radius:12px;padding:16px 18px;color:var(--danger)}
+  .err{background:var(--panel);border:1px solid var(--deaths);border-radius:12px;padding:16px 18px;color:var(--ink);margin-bottom:16px}
 </style>
 </head>
 <body>
@@ -68,24 +95,31 @@
       <p class="sub">Machine-readable mirror of the DGHS Health Emergency Operation Center
         <a href="https://dashboard.dghs.gov.bd/pages/heoc_dengue_v1.php" target="_blank" rel="noopener">Dengue Dynamic Dashboard</a>.</p>
     </div>
-    <div class="badge"><span class="dot" id="freshDot"></span><span id="freshText">loading…</span></div>
+    <div class="controls">
+      <label class="badge" for="snapshot">Report
+        <select id="snapshot"><option value="">Latest</option></select>
+      </label>
+      <div class="badge"><span class="dot" id="freshDot"></span><span id="freshText">loading…</span></div>
+    </div>
   </header>
 
   <div id="error" hidden class="err"></div>
 
   <div class="kpis" id="kpis"></div>
+  <p class="note" id="kpiNote"></p>
 
   <h3 class="section">Trends</h3>
   <div class="grid" id="charts"></div>
 
   <h3 class="section">Age &amp; sex breakdown</h3>
-  <div class="grid" id="tables"></div>
+  <div class="grid" id="ageCharts"></div>
+  <div class="grid" id="tables" style="margin-top:16px"></div>
 
-  <h3 class="section">JSON endpoints for your app</h3>
+  <h3 class="section">Downloads &amp; JSON endpoints</h3>
   <div class="card full">
     <div id="endpoints"></div>
     <p class="sub" style="margin-top:14px">Poll <code>summary.json</code> (small) and only pull
-      <code>latest.json</code> when <code>last_updated</code> changes. Both are CORS-enabled by GitHub Pages,
+      <code>latest.json</code> when <code>last_updated</code> changes. All files are CORS-enabled by GitHub Pages,
       so a browser or mobile app can fetch them directly.</p>
     <pre id="sample">// loading…</pre>
   </div>
@@ -99,146 +133,368 @@
 
 <script>
 const NUM = new Intl.NumberFormat('en-US');
-const fmt = v => (v === null || v === undefined) ? '—' : NUM.format(v);
+const fmt = v => (v === null || v === undefined || Number.isNaN(v)) ? '—' : NUM.format(v);
+const pct = (v, d = 1) => (v === null || v === undefined || !isFinite(v)) ? '—' : v.toFixed(d) + '%';
 const $ = id => document.getElementById(id);
-
 const CSS = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const yOf = p => (p && typeof p === 'object') ? p.y : p;
 
-// Charts to render, in order: source chart id -> how to draw it.
-const CHART_SPECS = [
-  {id:'confirmed_case',        type:'line', full:true,  fill:true},
-  {id:'death_case',            type:'line', full:true,  color:'--danger'},
-  {id:'by_week_case',          type:'line', full:true,  thin:true},
-  {id:'division_case',         type:'bar'},
-  {id:'division_death',        type:'bar',  color:'--danger'},
-  {id:'by_month_case',         type:'bar'},
-  {id:'year_case',             type:'bar'},
-  {id:'dengue_affected_by_age_group', type:'bar'},
-  {id:'dengue_death_by_age_group',    type:'bar', color:'--danger'},
-  {id:'affected_in_division_by_week', type:'line', full:true, thin:true},
-];
+const MONTHS = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
+// '05-Sep-26' -> '2026-09-05'
+function isoDate(label){
+  const m = /(\d{1,2})-([A-Za-z]{3})-(\d{2,4})/.exec(label || '');
+  if (!m || !MONTHS[m[2].toLowerCase()]) return null;
+  const y = m[3].length === 2 ? '20' + m[3] : m[3];
+  return `${y}-${String(MONTHS[m[2].toLowerCase()]).padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+}
+const shortDate = iso => new Date(iso + 'T00:00:00Z')
+  .toLocaleDateString('en-GB', {day:'numeric', month:'short', timeZone:'UTC'});
 
-const PALETTE = ['#337ab7','#2caffe','#2a9d5c','#e0a33e','#d1495b','#7b61ff',
-                 '#00b3a4','#c96f2f','#9c27b0','#5c6b7a','#0f7b6c'];
+const state = {doc:null, timeseries:null, charts:[], highlight:'Dhaka'};
 
-function kpiCards(s, meta){
-  const week = s.epi_week ? `${s.epi_week} cases` : 'This week cases';
-  const cards = [
-    ['Cases in last 24h', s.last24_cases, false],
-    ['Deaths in last 24h', s.last24_deaths, true],
-    [week, s.week_cases, false],
-    [s.epi_week ? `${s.epi_week} deaths` : 'This week deaths', s.week_deaths, true],
-    [`Total cases ${meta.year || ''}`.trim(), s.ytd_cases, false],
-    [`Total deaths ${meta.year || ''}`.trim(), s.ytd_deaths, true],
-    ['Discharged (24h)', s.discharged_last24, false],
-    ['Discharged (YTD)', s.discharged_ytd, false],
-  ];
-  $('kpis').innerHTML = cards.map(([label, value, death]) => `
-    <div class="kpi${death ? ' death' : ''}">
-      <div class="label">${label}</div>
-      <div class="value">${fmt(value)}</div>
-    </div>`).join('');
+// ---------------------------------------------------------------- KPIs
+
+function previousRow(date){
+  const rows = (state.timeseries && state.timeseries.rows) || [];
+  const i = rows.findIndex(r => r.date === date);
+  return i > 0 ? rows[i - 1] : null;
 }
 
-function drawChart(spec, chart){
-  const wrap = document.createElement('div');
-  wrap.className = 'card' + (spec.full ? ' full' : '');
-  wrap.innerHTML = `<h2>${chart.title || spec.id}</h2><div class="chart-box"><canvas></canvas></div>`;
-  $('charts').appendChild(wrap);
+function deltaText(now, before){
+  if (now == null || before == null) return '';
+  const d = now - before;
+  if (d === 0) return 'no change vs previous report';
+  return `${d > 0 ? '▲' : '▼'} ${fmt(Math.abs(d))} vs previous report`;
+}
 
-  const base = CSS(spec.color || '--accent');
-  const datasets = chart.series.map((s, i) => {
-    const points = s.data.map(p => (p && typeof p === 'object') ? p.y : p);
-    const color = chart.series.length > 1 ? PALETTE[i % PALETTE.length] : base;
-    return {
-      label: s.name || `series ${i + 1}`,
-      data: points,
-      borderColor: color,
-      backgroundColor: spec.type === 'line'
-        ? (spec.fill ? color + '33' : 'transparent')
-        : color + 'cc',
-      borderWidth: spec.thin ? 1.6 : 2,
-      pointRadius: 0,
-      pointHoverRadius: 3,
-      tension: .25,
-      fill: !!spec.fill,
-    };
-  });
+function splitTile(label, chart){
+  if (!chart || !chart.series[0]) return '';
+  const pts = chart.series[0].data;
+  const m = yOf(pts.find(p => /^male/i.test(p.name || ''))), f = yOf(pts.find(p => /^female/i.test(p.name || '')));
+  if (m == null || f == null || m + f === 0) return '';
+  const mp = 100 * m / (m + f), fp = 100 - mp;
+  return `<div class="kpi">
+    <div class="label">${label}</div>
+    <div class="split" role="img" aria-label="Male ${pct(mp)}, female ${pct(fp)}">
+      <span style="width:${mp}%;background:var(--male)"></span><span style="width:${fp}%;background:var(--female)"></span>
+    </div>
+    <div class="legend"><span><i class="sw" style="background:var(--male)"></i>Male ${pct(mp,0)} · ${fmt(m)}</span></div>
+    <div class="legend"><span><i class="sw" style="background:var(--female)"></i>Female ${pct(fp,0)} · ${fmt(f)}</span></div>
+  </div>`;
+}
 
-  new Chart(wrap.querySelector('canvas'), {
-    type: spec.type,
-    data: {labels: chart.categories, datasets},
-    options: {
-      responsive:true, maintainAspectRatio:false,
-      interaction:{mode:'index', intersect:false},
-      plugins:{
-        legend:{display:datasets.length > 1, labels:{boxWidth:11, boxHeight:11, font:{size:11}, color:CSS('--muted')}},
-        tooltip:{callbacks:{label:c => `${c.dataset.label}: ${fmt(c.parsed.y)}`}},
-      },
-      scales:{
-        x:{grid:{display:false}, ticks:{color:CSS('--muted'), font:{size:10},
-            maxRotation:0, autoSkipPadding:18}},
-        y:{beginAtZero:true, grid:{color:CSS('--line')},
-           ticks:{color:CSS('--muted'), font:{size:10}, callback:v => NUM.format(v)}},
-      },
+function kpiCards(doc){
+  const s = doc.summary, meta = doc.meta, prev = previousRow(meta.last_updated);
+  const wk = s.epi_week || 'This week';
+  const cfr = s.ytd_cases ? 100 * s.ytd_deaths / s.ytd_cases : null;
+  const prevCfr = prev && prev.cfr_pct;
+  const cards = [
+    ['Cases in last 24h', fmt(s.last24_cases), deltaText(s.last24_cases, prev && prev.last24_cases)],
+    ['Deaths in last 24h', fmt(s.last24_deaths), deltaText(s.last24_deaths, prev && prev.last24_deaths)],
+    [`${wk} cases`, fmt(s.week_cases), ''],
+    [`${wk} deaths`, fmt(s.week_deaths), ''],
+    [`Total cases ${meta.year || ''}`.trim(), fmt(s.ytd_cases), ''],
+    [`Total deaths ${meta.year || ''}`.trim(), fmt(s.ytd_deaths), ''],
+    ['Case fatality rate', pct(cfr, 2),
+      prevCfr != null && cfr != null ? `${(cfr - prevCfr) >= 0 ? '▲' : '▼'} ${Math.abs(cfr - prevCfr).toFixed(3)} pts vs previous` : 'deaths ÷ admitted, year to date'],
+    ['Discharged (YTD)', fmt(s.discharged_ytd), `${fmt(s.discharged_last24)} in last 24h`],
+  ];
+  $('kpis').innerHTML = cards.map(([label, value, delta]) => `
+    <div class="kpi">
+      <div class="label">${esc(label)}</div>
+      <div class="value">${value}</div>
+      ${delta ? `<div class="delta">${esc(delta)}</div>` : ''}
+    </div>`).join('') +
+    splitTile(`Cases by sex ${meta.year || ''}`, doc.charts.dengue_affected_by_gender) +
+    splitTile(`Deaths by sex ${meta.year || ''}`, doc.charts.dengue_death_by_gender);
+  $('kpiNote').textContent = prev
+    ? `Changes are against the DGHS report of ${shortDate(prev.date)}. CFR counts hospital admissions only, so it overstates the fatality rate among all infections.`
+    : 'CFR counts hospital admissions only, so it overstates the fatality rate among all infections.';
+}
+
+// ---------------------------------------------------------------- chart helpers
+
+function card(title, {full = false, tall = false, caption = '', control = '', parent = 'charts'} = {}){
+  const el = document.createElement('div');
+  el.className = 'card' + (full ? ' full' : '');
+  el.innerHTML = `<div class="card-head"><h2>${esc(title)}</h2>${control}</div>
+    <div class="chart-box${tall ? ' tall' : ''}"><canvas></canvas></div>
+    ${caption ? `<p class="cap">${esc(caption)}</p>` : ''}`;
+  $(parent).appendChild(el);
+  return el;
+}
+
+function baseOptions({legend = true, horizontal = false, stacked = false, abs = false} = {}){
+  const muted = CSS('--muted'), line = CSS('--line');
+  const valueAxis = {beginAtZero:true, stacked, grid:{color:line}, border:{display:false},
+    ticks:{color:muted, font:{size:10}, callback:v => NUM.format(abs ? Math.abs(v) : v)}};
+  const catAxis = {stacked, grid:{display:false}, ticks:{color:muted, font:{size:10}, maxRotation:0, autoSkipPadding:18}};
+  return {
+    responsive:true, maintainAspectRatio:false, indexAxis: horizontal ? 'y' : 'x',
+    interaction:{mode:'index', intersect:false},
+    plugins:{
+      legend:{display:legend, labels:{boxWidth:11, boxHeight:11, font:{size:11}, color:muted}},
+      tooltip:{callbacks:{label:c => `${c.dataset.label}: ${fmt(abs ? Math.abs(c.raw) : c.raw)}`}},
     },
+    scales: horizontal ? {x:valueAxis, y:catAxis} : {x:catAxis, y:valueAxis},
+  };
+}
+
+function plot(el, config){
+  state.charts.push(new Chart(el.querySelector('canvas'), config));
+}
+
+const bar = (label, data, color, extra = {}) => ({type:'bar', label, data, backgroundColor:color,
+  borderRadius:4, borderSkipped:'start', maxBarThickness:28, ...extra});
+const line = (label, data, color, extra = {}) => ({type:'line', label, data, borderColor:color,
+  backgroundColor:color, borderWidth:2, pointRadius:0, pointHoverRadius:4, cubicInterpolationMode:'monotone', ...extra});
+// Dash the segment into the last reported point: that week/month is still in progress.
+const partialTail = data => { const last = data.reduce((k, v, i) => v == null ? k : i, -1);
+  return {segment:{borderDash:ctx => ctx.p1DataIndex === last ? [5, 4] : undefined}}; };
+
+function rolling7(values){
+  return values.map((_, i) => {
+    if (i < 6) return null;
+    const w = values.slice(i - 6, i + 1);
+    return w.some(v => v == null) ? null : Math.round(10 * w.reduce((a, b) => a + b, 0) / 7) / 10;
   });
+}
+
+// Admissions and deaths per calendar day. The death chart only lists days with
+// a death, so days missing from it within the admissions range are zero.
+function dailySeries(doc){
+  const adm = doc.charts.confirmed_case, dth = doc.charts.death_case;
+  if (!adm) return null;
+  const deaths = {};
+  if (dth) dth.categories.forEach((c, i) => { const d = isoDate(c); if (d) deaths[d] = yOf(dth.series[0].data[i]); });
+  const rows = adm.categories.map((c, i) => ({date:isoDate(c), admitted:yOf(adm.series[0].data[i])}))
+    .filter(r => r.date);
+  rows.forEach(r => { r.deaths = deaths[r.date] ?? 0; });
+  return rows;
+}
+
+// Age bands as published are sorted as text ("0-5","06-10",…,"6-10") and include
+// source glitches such as "42309". Order them by numeric lower bound, glitches last.
+function ageKey(label){
+  const m = /^(\d+)\s*(?:-\s*(\d+)|\+)/.exec(label);
+  return m ? [0, +m[1], m[2] ? +m[2] : 999] : [1, 0, 0];
+}
+const byAge = (a, b) => { const x = ageKey(a), y = ageKey(b); return x[0]-y[0] || x[1]-y[1] || x[2]-y[2]; };
+
+// ---------------------------------------------------------------- charts
+
+function drawDaily(doc){
+  const rows = dailySeries(doc);
+  if (!rows) return;
+  const labels = rows.map(r => shortDate(r.date));
+  const adm = rows.map(r => r.admitted), dth = rows.map(r => r.deaths);
+  plot(card('Daily hospital admissions', {full:true, caption:'Bars: admissions reported per day. Line: 7-day average.'}), {
+    type:'bar', data:{labels, datasets:[
+      line('7-day average', rolling7(adm), CSS('--ink'), {borderWidth:2}),
+      bar('Admitted', adm, CSS('--s1') + 'b3', {borderRadius:2, maxBarThickness:6}),
+    ]}, options:baseOptions()});
+  plot(card('Daily deaths', {full:true, caption:'Days with no reported death are shown as zero. Line: 7-day average.'}), {
+    type:'bar', data:{labels, datasets:[
+      line('7-day average', rolling7(dth), CSS('--ink'), {borderWidth:2}),
+      bar('Deaths', dth, CSS('--deaths') + 'b3', {borderRadius:2, maxBarThickness:6}),
+    ]}, options:baseOptions()});
+}
+
+// Previous years come from the comparison chart; the current year's weekly
+// counts live in the death-vs-admitted chart, matched by week label.
+function drawYearComparison(doc, {title, prevId, currentId, currentSeries, labelsFrom, caption}){
+  const prev = doc.charts[prevId], cur = doc.charts[currentId];
+  if (!prev) return;
+  const labels = (labelsFrom ? labelsFrom(prev) : prev.categories);
+  const datasets = [];
+  if (cur){
+    const s = cur.series.find(x => currentSeries.test(x.name || '')) || cur.series[0];
+    const lookup = {};
+    cur.categories.forEach((c, i) => { lookup[c.trim().toLowerCase()] = yOf(s.data[i]); });
+    const data = labels.map(l => lookup[l.trim().toLowerCase()] ?? null);
+    datasets.push(line(String(doc.meta.year || 'Current year'), data, CSS('--s1'), {borderWidth:3, ...partialTail(data)}));
+  }
+  const prevColors = ['--s2', '--s3', '--s4'];
+  prev.series
+    .map(s => ({s, year:(/(\d{4})/.exec(s.name || '') || [])[1] || s.name}))
+    .sort((a, b) => String(b.year).localeCompare(String(a.year)))
+    .forEach(({s, year}, i) => datasets.push(line(year,
+      labels.map((_, j) => yOf(s.data[prev.categories.indexOf(labels[j])]) ?? null),
+      CSS(prevColors[i] || '--context'), {borderWidth:1.5})));
+  plot(card(title, {full:true, caption}), {type:'line', data:{labels, datasets}, options:baseOptions()});
+}
+
+function drawDivisionWeeks(doc){
+  const c = doc.charts.affected_in_division_by_week;
+  if (!c) return;
+  const names = c.series.map(s => s.name);
+  if (!names.includes(state.highlight)) state.highlight = names[0];
+  const control = `<select id="divPick" aria-label="Highlight division">${names.map(n =>
+    `<option${n === state.highlight ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select>`;
+  const el = card(`Weekly admissions by division, ${doc.meta.year || ''}`.trim(),
+    {full:true, control, caption:'Highlighted division in color; the other divisions in gray for context. Dashed: latest week, still in progress.'});
+  const build = () => c.series.map(s => {
+    const on = s.name === state.highlight;
+    const data = s.data.map(yOf);
+    return line(s.name, data, on ? CSS('--s1') : CSS('--context'),
+      {borderWidth:on ? 3 : 1.25, order:on ? 0 : 1, ...(on ? partialTail(data) : {})});
+  });
+  const opts = baseOptions({legend:false});
+  opts.interaction = {mode:'nearest', intersect:false};
+  const chart = new Chart(el.querySelector('canvas'), {type:'line', data:{labels:c.categories, datasets:build()}, options:opts});
+  state.charts.push(chart);
+  el.querySelector('#divPick').addEventListener('change', e => {
+    state.highlight = e.target.value; chart.data.datasets = build(); chart.update();
+  });
+}
+
+function drawRanked(doc, id, title, color){
+  const c = doc.charts[id];
+  if (!c || !c.series[0]) return;
+  const rows = c.categories.map((l, i) => [l.trim(), yOf(c.series[0].data[i])])
+    .filter(r => r[1] != null).sort((a, b) => b[1] - a[1]);
+  plot(card(title), {type:'bar', data:{labels:rows.map(r => r[0]),
+    datasets:[bar(c.series[0].name || title, rows.map(r => r[1]), CSS(color))]},
+    options:(o => { o.scales.y.ticks.autoSkip = false; return o; })(baseOptions({legend:false, horizontal:true}))});
+}
+
+function drawPyramid(doc, id, title){
+  const c = doc.charts[id];
+  if (!c || !c.categories.length) return;   // older snapshots lack age labels
+  const male = c.series.find(s => /^male/i.test(s.name || '')), female = c.series.find(s => /^female/i.test(s.name || ''));
+  if (!male || !female) return;
+  const order = c.categories.map((l, i) => [l, i]).sort((a, b) => byAge(a[0], b[0]));
+  const opts = baseOptions({horizontal:true, stacked:true, abs:true});
+  opts.scales.y.ticks.autoSkip = false;
+  plot(card(title, {tall:true, parent:'ageCharts', caption:'Male to the left, female to the right. Age bands exactly as DGHS publishes them, including overlapping bands.'}), {
+    type:'bar', data:{labels:order.map(o => o[0]), datasets:[
+      bar('Male', order.map(([, i]) => -Math.abs(male.data[i] || 0)), CSS('--male'), {borderSkipped:false, maxBarThickness:16}),
+      bar('Female', order.map(([, i]) => Math.abs(female.data[i] || 0)), CSS('--female'), {borderSkipped:false, maxBarThickness:16}),
+    ]}, options:opts});
+}
+
+function drawYearly(doc){
+  const c = doc.charts.year_case;
+  if (!c || !c.series[0]) return;
+  const data = c.series[0].data.map(yOf);
+  const curYear = String(doc.meta.year);
+  plot(card('Admissions per year', {caption:`${curYear} is year to date.`}), {type:'bar',
+    data:{labels:c.categories, datasets:[bar('Admitted', data,
+      c.categories.map(l => l === curYear ? CSS('--s1') : CSS('--context')))]},
+    options:baseOptions({legend:false})});
 }
 
 function drawTable(t){
-  const card = document.createElement('div');
-  card.className = 'card';
-  const head = t.headers.map(h => `<th>${h}</th>`).join('');
-  const body = t.rows.map(r =>
-    `<tr>${t.headers.map(h => `<td>${typeof r[h] === 'number' ? fmt(r[h]) : (r[h] || '—')}</td>`).join('')}</tr>`
-  ).join('');
-  card.innerHTML = `<h2>${t.title || 'Table'}</h2>
+  const el = document.createElement('div');
+  el.className = 'card';
+  const ageCol = t.headers[0];
+  const rows = /age/i.test(ageCol || '') ? [...t.rows].sort((a, b) => byAge(String(a[ageCol] || ''), String(b[ageCol] || ''))) : t.rows;
+  const head = t.headers.map(h => `<th scope="col">${esc(h)}</th>`).join('');
+  const body = rows.map(r =>
+    `<tr>${t.headers.map(h => `<td>${typeof r[h] === 'number' ? fmt(r[h]) : esc(r[h] || '—')}</td>`).join('')}</tr>`).join('');
+  el.innerHTML = `<div class="card-head"><h2>${esc(t.title || 'Table')}</h2></div>
     <div class="scroll"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
-  $('tables').appendChild(card);
+  $('tables').appendChild(el);
 }
 
+// ---------------------------------------------------------------- page
+
 function endpoints(){
-  const base = location.href.replace(/[^/]*$/, '');
+  const base = location.href.replace(/[?#].*$/, '').replace(/[^/]*$/, '');
   const rows = [
     ['data/summary.json', 'Headline numbers only — small, ideal for frequent polling'],
     ['data/latest.json', 'Full dataset: every KPI, chart series and table'],
+    ['data/timeseries.csv', 'One row per DGHS report: 24h, weekly and YTD cases & deaths, CFR (also .json)'],
+    ['data/daily.csv', 'Admissions and deaths per calendar day, current year'],
     ['data/history/index.json', 'List of archived report dates'],
     ['data/history/YYYY-MM-DD.json', 'Full snapshot for one past report date'],
   ];
-  $('endpoints').innerHTML = rows.map(([path, what]) =>
-    `<div class="endpoint"><code>${base}${path}</code><span class="what">${what}</span></div>`).join('');
+  $('endpoints').innerHTML = rows.map(([path, what]) => {
+    const link = path.includes('YYYY') ? `<code>${esc(base + path)}</code>`
+      : `<a href="${esc(path)}"><code>${esc(base + path)}</code></a>`;
+    return `<div class="endpoint">${link}<span class="what">${what}</span></div>`;
+  }).join('');
 }
 
-function freshness(doc){
+function freshness(doc, isSnapshot){
   const updated = doc.meta.last_updated;
-  const days = updated
-    ? Math.floor((Date.now() - Date.parse(updated + 'T00:00:00Z')) / 86400000)
-    : null;
-  $('freshText').textContent = updated
-    ? `DGHS report date ${doc.meta.last_updated_label}` + (days > 1 ? ` · ${days} days old` : '')
-    : 'report date unknown';
-  if (days !== null && days > 2) $('freshDot').classList.add('stale');
+  const days = updated ? Math.floor((Date.now() - Date.parse(updated + 'T00:00:00Z')) / 86400000) : null;
+  $('freshText').textContent = !updated ? 'report date unknown'
+    : isSnapshot ? `Archived report ${doc.meta.last_updated_label}`
+    : `DGHS report date ${doc.meta.last_updated_label}` + (days > 1 ? ` · ${days} days old` : '');
+  $('freshDot').classList.toggle('stale', isSnapshot || (days !== null && days > 2));
 }
 
-fetch('data/latest.json?t=' + Date.now())
-  .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-  .then(doc => {
-    freshness(doc);
-    kpiCards(doc.summary, doc.meta);
-    CHART_SPECS.forEach(spec => { if (doc.charts[spec.id]) drawChart(spec, doc.charts[spec.id]); });
-    doc.tables.forEach(drawTable);
-    endpoints();
-    $('sample').textContent = JSON.stringify(
-      {schema_version: doc.schema_version, fetched_at: doc.fetched_at,
-       last_updated: doc.meta.last_updated, year: doc.meta.year, summary: doc.summary}, null, 2);
-  })
-  .catch(err => {
+function render(){
+  const doc = state.doc;
+  state.charts.forEach(c => c.destroy());
+  state.charts = [];
+  ['charts', 'ageCharts', 'tables'].forEach(id => { $(id).innerHTML = ''; });
+
+  kpiCards(doc);
+  drawDaily(doc);
+  drawYearComparison(doc, {title:'Weekly admissions: this year vs previous years',
+    prevId:'by_week_case', currentId:'death_case_ration_by_week', currentSeries:/admitted/i,
+    labelsFrom:c => c.categories.filter(l => l.trim()),
+    caption:`Dashed: ${doc.summary.epi_week || 'the latest week'}, still in progress.`});
+  drawDivisionWeeks(doc);
+  drawRanked(doc, 'division_case', `Admissions by division, ${doc.meta.year || ''}`.trim(), '--s1');
+  drawRanked(doc, 'division_death', `Deaths by division, ${doc.meta.year || ''}`.trim(), '--deaths');
+  drawYearComparison(doc, {title:'Monthly admissions: this year vs previous years',
+    prevId:'by_month_case', currentId:'monthly_case_and_death_in_year', currentSeries:/admitted/i,
+    caption:'Dashed: the current month, still in progress.'});
+  drawYearly(doc);
+  drawRanked(doc, 'div_city_cor_case_last_24_hour', 'Last 24h admissions by division & city corporation', '--s1');
+  drawPyramid(doc, 'dengue_affected_by_age_group', `Admissions by age and sex, ${doc.meta.year || ''}`.trim());
+  drawPyramid(doc, 'dengue_death_by_age_group', `Deaths by age and sex, ${doc.meta.year || ''}`.trim());
+  doc.tables.forEach(drawTable);
+}
+
+async function getJSON(path){
+  const r = await fetch(path + (path.includes('?') ? '&' : '?') + 't=' + Date.now());
+  if (!r.ok) throw new Error(`${path}: HTTP ${r.status}`);
+  return r.json();
+}
+
+async function load(date){
+  const isSnapshot = !!date;
+  try {
+    state.doc = await getJSON(isSnapshot ? `data/history/${date}.json` : 'data/latest.json');
+    $('error').hidden = true;
+  } catch (err) {
     $('error').hidden = false;
-    $('error').textContent = 'Could not load data/latest.json — ' + err.message +
+    $('error').textContent = 'Could not load the data — ' + err.message +
       '. If this is a fresh repository, run the "Update dengue data" workflow once.';
     $('freshText').textContent = 'no data';
     $('freshDot').classList.add('stale');
-  });
+    return;
+  }
+  freshness(state.doc, isSnapshot);
+  render();
+  const d = state.doc;
+  $('sample').textContent = JSON.stringify({schema_version:d.schema_version, fetched_at:d.fetched_at,
+    last_updated:d.meta.last_updated, year:d.meta.year, summary:d.summary}, null, 2);
+}
+
+async function init(){
+  endpoints();
+  // Optional extras: the page still works if these are missing.
+  const [ts, index] = await Promise.all([
+    getJSON('data/timeseries.json').catch(() => null),
+    getJSON('data/history/index.json').catch(() => []),
+  ]);
+  state.timeseries = ts;
+  const pick = $('snapshot');
+  [...index].reverse().forEach(d => pick.insertAdjacentHTML('beforeend', `<option value="${esc(d)}">${esc(d)}</option>`));
+  pick.addEventListener('change', () => load(pick.value));
+  await load('');
+}
+
+// Re-read the theme tokens when the OS switches light/dark.
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (state.doc) render(); });
+
+init();
 </script>
 </body>
 </html>
