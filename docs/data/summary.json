@@ -1,17 +1,17 @@
 {
  "schema_version": 1,
- "fetched_at": "2026-10-08T18:26:17Z",
- "last_updated": "2026-10-08",
+ "fetched_at": "2026-10-09T17:57:51Z",
+ "last_updated": "2026-10-09",
  "year": 2026,
  "summary": {
   "epi_week": "W40",
-  "week_cases": 9782,
-  "week_deaths": 38,
-  "ytd_cases": 94151,
-  "ytd_deaths": 294,
-  "last24_cases": 1935,
-  "last24_deaths": 5,
-  "discharged_last24": 2057,
-  "discharged_ytd": 88208
+  "week_cases": 11082,
+  "week_deaths": 39,
+  "ytd_cases": 95451,
+  "ytd_deaths": 295,
+  "last24_cases": 1300,
+  "last24_deaths": 1,
+  "discharged_last24": 1172,
+  "discharged_ytd": 89380
  }
 }
