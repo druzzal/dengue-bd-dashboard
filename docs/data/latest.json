@@ -1,23 +1,23 @@
 {
  "schema_version": 1,
- "fetched_at": "2026-10-11T12:06:23Z",
+ "fetched_at": "2026-10-12T20:53:59Z",
  "meta": {
   "source_url": "https://dashboard.dghs.gov.bd/pages/heoc_dengue_v1.php",
   "source_name": "DGHS Health Emergency Operation Center & Control Room",
-  "last_updated_label": "11-Oct-2026",
-  "last_updated": "2026-10-11",
+  "last_updated_label": "12-Oct-2026",
+  "last_updated": "2026-10-12",
   "year": 2026
  },
  "summary": {
   "epi_week": "W41",
-  "week_cases": 2193,
-  "week_deaths": 4,
-  "ytd_cases": 99275,
-  "ytd_deaths": 303,
-  "last24_cases": 2193,
+  "week_cases": 4360,
+  "week_deaths": 8,
+  "ytd_cases": 101442,
+  "ytd_deaths": 307,
+  "last24_cases": 2167,
   "last24_deaths": 4,
-  "discharged_last24": 1796,
-  "discharged_ytd": 92803
+  "discharged_last24": 2428,
+  "discharged_ytd": 95331
  },
  "charts": {
   "affected_case_last_24_hour": {
@@ -30,7 +30,7 @@
      "name": "Admitted",
      "type": "column",
      "data": [
-      2193
+      2167
      ]
     }
    ]
@@ -69,16 +69,16 @@
      "name": "Admitted",
      "type": "column",
      "data": [
-      236,
-      293,
-      530,
-      250,
-      250,
-      304,
-      70,
-      160,
-      84,
-      16
+      243,
+      287,
+      484,
+      140,
+      247,
+      298,
+      102,
+      253,
+      92,
+      21
      ]
     }
    ]
@@ -86,18 +86,14 @@
   "div_city_cor_death_last_24_hour": {
    "title": "Division & City corporation deaths of last 24 hours",
    "categories": [
-    "Chattogram Division (Out of CC)",
-    "Khulna Division (Out of CC)",
-    "Rajshahi Division (Out of CC)"
+    "DSCC"
    ],
    "series": [
     {
      "name": "Death",
      "type": "column",
      "data": [
-      1,
-      2,
-      1
+      4
      ]
     }
    ]
@@ -112,7 +108,7 @@
      "data": [
       {
        "name": "Male",
-       "y": 1356
+       "y": 1329
       },
       {
        "name": "Female",
@@ -132,14 +128,14 @@
      "name": "DISCHARGED for last 24 hours",
      "type": "column",
      "data": [
-      1796
+      2428
      ]
     },
     {
      "name": "DISCHARGED from 1 January to Till date",
      "type": "column",
      "data": [
-      92803
+      95331
      ]
     }
    ]
@@ -154,7 +150,7 @@
      "name": "Admitted",
      "type": "column",
      "data": [
-      99275
+      101442
      ]
     }
    ]
@@ -169,7 +165,7 @@
      "name": "Death",
      "type": "column",
      "data": [
-      303
+      307
      ]
     }
    ]
@@ -193,16 +189,16 @@
      "name": "Admitted",
      "type": "column",
      "data": [
-      12768,
-      14997,
-      17791,
-      10567,
-      11434,
-      15836,
-      5381,
-      6759,
-      3253,
-      489
+      13011,
+      15284,
+      18275,
+      10707,
+      11681,
+      16134,
+      5483,
+      7012,
+      3345,
+      510
      ]
     }
    ]
@@ -230,7 +226,7 @@
       27,
       17,
       36,
-      80,
+      84,
       63,
       23,
       22,
@@ -268,7 +264,7 @@
       9206,
       20536,
       43774,
-      19655
+      21822
      ]
     }
    ]
@@ -297,7 +293,7 @@
       36,
       43,
       148,
-      58
+      62
      ]
     }
    ]
@@ -322,14 +318,14 @@
      "name": "Affected by Division",
      "type": "column",
      "data": [
-      39787,
-      15836,
-      14996,
-      12765,
-      6759,
-      5381,
-      3253,
-      489,
+      40658,
+      16134,
+      15283,
+      13008,
+      7012,
+      5483,
+      3345,
+      510,
       5,
       3,
       1
@@ -357,7 +353,7 @@
      "name": "Death by Division",
      "type": "column",
      "data": [
-      133,
+      137,
       63,
       27,
       26,
@@ -658,7 +654,8 @@
     "08-Oct-26",
     "09-Oct-26",
     "10-Oct-26",
-    "11-Oct-26"
+    "11-Oct-26",
+    "12-Oct-26"
    ],
    "series": [
     {
@@ -948,7 +945,8 @@
       1935,
       1300,
       1631,
-      2193
+      2193,
+      2167
      ]
     }
    ]
@@ -1283,7 +1281,8 @@
     "08-Oct-26",
     "09-Oct-26",
     "10-Oct-26",
-    "11-Oct-26"
+    "11-Oct-26",
+    "12-Oct-26"
    ],
    "series": [
     {
@@ -1376,6 +1375,7 @@
       8,
       5,
       1,
+      4,
       4,
       4
      ]
@@ -1482,7 +1482,7 @@
       321017,
       101211,
       102861,
-      99275
+      101442
      ]
     }
    ]
@@ -1519,27 +1519,27 @@
      "type": null,
      "data": [
       -1,
-      -2795,
-      -2761,
-      -3912,
-      -8957,
-      -9530,
+      -2868,
+      -2836,
+      -3999,
+      -9148,
+      -9746,
       -1,
-      -9069,
-      -5844,
-      -5138,
-      -3795,
+      -9259,
+      -5959,
+      -5249,
+      -3851,
       -44,
-      -3009,
+      -3057,
       -36,
-      -2174,
-      -1843,
+      -2228,
+      -1893,
       -1,
-      -1196,
-      -775,
-      -347,
-      -224,
-      -177
+      -1226,
+      -794,
+      -353,
+      -227,
+      -182
      ]
     },
     {
@@ -1547,27 +1547,27 @@
      "type": null,
      "data": [
       0,
-      2217,
-      2189,
-      2182,
-      4454,
-      4702,
+      2272,
+      2236,
+      2222,
+      4558,
+      4798,
       0,
-      4941,
-      3948,
-      3561,
-      2645,
+      5060,
+      4042,
+      3640,
+      2696,
       19,
-      2212,
+      2265,
       31,
-      1402,
-      1254,
+      1443,
+      1278,
       0,
-      800,
-      434,
-      188,
-      131,
-      85
+      813,
+      444,
+      193,
+      136,
+      86
      ]
     }
    ]
@@ -1687,7 +1687,7 @@
      "type": null,
      "data": [
       -1,
-      -5,
+      -7,
       -9,
       -4,
       -11,
@@ -1697,7 +1697,7 @@
       -11,
       -12,
       -15,
-      -9,
+      -10,
       -10,
       -9,
       -1,
@@ -1766,7 +1766,7 @@
      "type": null,
      "data": [
       0,
-      -1,
+      -2,
       -2,
       -1,
       -3,
@@ -1776,7 +1776,7 @@
       -3,
       -3,
       -4,
-      -2,
+      -3,
       -3,
       -2,
       0,
@@ -1825,11 +1825,11 @@
      "data": [
       {
        "name": "Male",
-       "y": 61636
+       "y": 62965
       },
       {
        "name": "Female",
-       "y": 37395
+       "y": 38232
       }
      ]
     }
@@ -1845,7 +1845,7 @@
      "data": [
       {
        "name": "Male",
-       "y": 144
+       "y": 147
       },
       {
        "name": "Female",
@@ -1945,7 +1945,7 @@
       1156,
       1532,
       1377,
-      236
+      479
      ]
     },
     {
@@ -1992,7 +1992,7 @@
       4520,
       4804,
       5144,
-      1030
+      1901
      ]
     },
     {
@@ -2039,7 +2039,7 @@
       1824,
       2322,
       1886,
-      293
+      580
      ]
     },
     {
@@ -2086,7 +2086,7 @@
       1814,
       1751,
       2064,
-      304
+      602
      ]
     },
     {
@@ -2133,7 +2133,7 @@
       402,
       524,
       481,
-      84
+      176
      ]
     },
     {
@@ -2180,7 +2180,7 @@
       788,
       1122,
       1051,
-      160
+      413
      ]
     },
     {
@@ -2227,7 +2227,7 @@
       53,
       59,
       84,
-      16
+      37
      ]
     },
     {
@@ -2274,7 +2274,7 @@
       600,
       719,
       626,
-      70
+      172
      ]
     }
    ]
@@ -2369,7 +2369,7 @@
       11157,
       12833,
       12713,
-      2193
+      4360
      ]
     },
     {
@@ -2416,7 +2416,7 @@
       41,
       37,
       43,
-      4
+      8
      ]
     },
     {
@@ -2481,111 +2481,111 @@
    "rows": [
     {
      "Age Group": "0-5",
-     "Male": 70,
-     "Female": 57,
-     "Total": 127
+     "Male": 73,
+     "Female": 55,
+     "Total": 128
     },
     {
      "Age Group": "06-10",
-     "Male": 62,
-     "Female": 49,
-     "Total": 111
+     "Male": 75,
+     "Female": 47,
+     "Total": 122
     },
     {
      "Age Group": "11-15",
-     "Male": 91,
-     "Female": 42,
-     "Total": 133
+     "Male": 87,
+     "Female": 40,
+     "Total": 127
     },
     {
      "Age Group": "16-20",
-     "Male": 180,
-     "Female": 93,
-     "Total": 273
+     "Male": 191,
+     "Female": 104,
+     "Total": 295
     },
     {
      "Age Group": "21-25",
-     "Male": 187,
-     "Female": 92,
-     "Total": 279
+     "Male": 216,
+     "Female": 96,
+     "Total": 312
     },
     {
      "Age Group": "26-30",
-     "Male": 207,
-     "Female": 118,
-     "Total": 325
+     "Male": 190,
+     "Female": 119,
+     "Total": 309
     },
     {
      "Age Group": "31-35",
-     "Male": 133,
-     "Female": 97,
-     "Total": 230
+     "Male": 115,
+     "Female": 94,
+     "Total": 210
     },
     {
      "Age Group": "36-40",
-     "Male": 119,
-     "Female": 90,
-     "Total": 209
+     "Male": 111,
+     "Female": 79,
+     "Total": 190
     },
     {
      "Age Group": "41-45",
-     "Male": 88,
-     "Female": 55,
-     "Total": 143
+     "Male": 56,
+     "Female": 51,
+     "Total": 107
     },
     {
      "Age Group": "46-50",
-     "Male": 63,
-     "Female": 47,
-     "Total": 110
+     "Male": 48,
+     "Female": 53,
+     "Total": 101
     },
     {
      "Age Group": "51-55",
-     "Male": 48,
-     "Female": 34,
-     "Total": 82
+     "Male": 54,
+     "Female": 41,
+     "Total": 95
     },
     {
      "Age Group": "56-60",
-     "Male": 38,
-     "Female": 26,
-     "Total": 64
+     "Male": 50,
+     "Female": 24,
+     "Total": 74
     },
     {
      "Age Group": "61-65",
-     "Male": 34,
-     "Female": 17,
-     "Total": 51
+     "Male": 30,
+     "Female": 13,
+     "Total": 43
     },
     {
      "Age Group": "66-70",
-     "Male": 16,
+     "Male": 19,
      "Female": 10,
-     "Total": 26
+     "Total": 29
     },
     {
      "Age Group": "71-75",
-     "Male": 8,
-     "Female": 4,
-     "Total": 12
+     "Male": 6,
+     "Female": 5,
+     "Total": 11
     },
     {
      "Age Group": "76-80",
-     "Male": 8,
-     "Female": 2,
-     "Total": 10
-    },
-    {
-     "Age Group": "80+",
-     "Male": 4,
-     "Female": 4,
+     "Male": 3,
+     "Female": 5,
      "Total": 8
     },
     {
+     "Age Group": "80+",
+     "Male": 5,
+     "Female": 1,
+     "Total": 6
+    },
+    {
      "Age Group": "Grand Total",
-     "Male": 1356,
+     "Male": 1329,
      "Female": 837,
-     "Total": 2193
+     "Total": 2167
     }
    ]
   },
@@ -2599,27 +2599,27 @@
    ],
    "rows": [
     {
-     "Age Group": "16-20",
-     "Male": 1,
-     "Female": 1,
+     "Age Group": "0-5",
+     "Male": 2,
+     "Female": 0,
      "Total": 2
     },
     {
-     "Age Group": "41-45",
+     "Age Group": "31-35",
      "Male": 0,
-     "Female": 1,
+     "Female": 0,
      "Total": 1
     },
     {
-     "Age Group": "71-75",
+     "Age Group": "46-50",
      "Male": 1,
      "Female": 0,
      "Total": 1
     },
     {
      "Age Group": "Grand Total",
-     "Male": 2,
-     "Female": 2,
+     "Male": 3,
+     "Female": 0,
      "Total": 4
     }
    ]
@@ -2647,33 +2647,33 @@
     },
     {
      "Age Group": "0-5",
-     "Male": 2795,
-     "Female": 2217,
-     "Total": 5022
+     "Male": 2868,
+     "Female": 2272,
+     "Total": 5150
     },
     {
      "Age Group": "06-10",
-     "Male": 2761,
-     "Female": 2189,
-     "Total": 4961
+     "Male": 2836,
+     "Female": 2236,
+     "Total": 5083
     },
     {
      "Age Group": "11-15",
-     "Male": 3912,
-     "Female": 2182,
-     "Total": 6110
+     "Male": 3999,
+     "Female": 2222,
+     "Total": 6237
     },
     {
      "Age Group": "16-20",
-     "Male": 8957,
-     "Female": 4454,
-     "Total": 13445
+     "Male": 9148,
+     "Female": 4558,
+     "Total": 13740
     },
     {
      "Age Group": "21-25",
-     "Male": 9530,
-     "Female": 4702,
-     "Total": 14276
+     "Male": 9746,
+     "Female": 4798,
+     "Total": 14588
     },
     {
      "Age Group": "21-30",
@@ -2683,27 +2683,27 @@
     },
     {
      "Age Group": "26-30",
-     "Male": 9069,
-     "Female": 4941,
-     "Total": 14046
+     "Male": 9259,
+     "Female": 5060,
+     "Total": 14355
     },
     {
      "Age Group": "31-35",
-     "Male": 5844,
-     "Female": 3948,
-     "Total": 9813
+     "Male": 5959,
+     "Female": 4042,
+     "Total": 10023
     },
     {
      "Age Group": "36-40",
-     "Male": 5138,
-     "Female": 3561,
-     "Total": 8727
+     "Male": 5249,
+     "Female": 3640,
+     "Total": 8917
     },
     {
      "Age Group": "41-45",
-     "Male": 3795,
-     "Female": 2645,
-     "Total": 6453
+     "Male": 3851,
+     "Female": 2696,
+     "Total": 6560
     },
     {
      "Age Group": "42309",
@@ -2713,9 +2713,9 @@
     },
     {
      "Age Group": "46-50",
-     "Male": 3009,
-     "Female": 2212,
-     "Total": 5230
+     "Male": 3057,
+     "Female": 2265,
+     "Total": 5331
     },
     {
      "Age Group": "46301",
@@ -2725,15 +2725,15 @@
     },
     {
      "Age Group": "51-55",
-     "Male": 2174,
-     "Female": 1402,
-     "Total": 3582
+     "Male": 2228,
+     "Female": 1443,
+     "Total": 3677
     },
     {
      "Age Group": "56-60",
-     "Male": 1843,
-     "Female": 1254,
-     "Total": 3106
+     "Male": 1893,
+     "Female": 1278,
+     "Total": 3180
     },
     {
      "Age Group": "6-10",
@@ -2743,39 +2743,39 @@
     },
     {
      "Age Group": "61-65",
-     "Male": 1196,
-     "Female": 800,
-     "Total": 1999
+     "Male": 1226,
+     "Female": 813,
+     "Total": 2042
     },
     {
      "Age Group": "66-70",
-     "Male": 775,
-     "Female": 434,
-     "Total": 1211
+     "Male": 794,
+     "Female": 444,
+     "Total": 1240
     },
     {
      "Age Group": "71-75",
-     "Male": 347,
-     "Female": 188,
-     "Total": 536
+     "Male": 353,
+     "Female": 193,
+     "Total": 547
     },
     {
      "Age Group": "76-80",
-     "Male": 224,
-     "Female": 131,
-     "Total": 356
+     "Male": 227,
+     "Female": 136,
+     "Total": 364
     },
     {
      "Age Group": "80+",
-     "Male": 177,
-     "Female": 85,
-     "Total": 262
+     "Male": 182,
+     "Female": 86,
+     "Total": 268
     },
     {
      "Age Group": "Grand Total",
-     "Male": 61636,
-     "Female": 37395,
-     "Total": 99275
+     "Male": 62965,
+     "Female": 38232,
+     "Total": 101442
     }
    ]
   },
@@ -2796,9 +2796,9 @@
     },
     {
      "Age Group": "0-5",
-     "Male": 5,
+     "Male": 7,
      "Female": 9,
-     "Total": 14
+     "Total": 16
     },
     {
      "Age Group": "06-10",
@@ -2840,7 +2840,7 @@
      "Age Group": "31-35",
      "Male": 11,
      "Female": 17,
-     "Total": 29
+     "Total": 30
     },
     {
      "Age Group": "36-40",
@@ -2856,9 +2856,9 @@
     },
     {
      "Age Group": "46-50",
-     "Male": 9,
+     "Male": 10,
      "Female": 16,
-     "Total": 26
+     "Total": 27
     },
     {
      "Age Group": "51-55",
@@ -2910,9 +2910,9 @@
     },
     {
      "Age Group": "Grand Total",
-     "Male": 144,
+     "Male": 147,
      "Female": 155,
-     "Total": 303
+     "Total": 307
     }
    ]
   },
@@ -2939,33 +2939,33 @@
     },
     {
      "Age Group": "0-5",
-     "Male": 1029,
-     "Female": 795,
-     "Total": 1831
+     "Male": 1050,
+     "Female": 811,
+     "Total": 1868
     },
     {
      "Age Group": "06-10",
-     "Male": 953,
-     "Female": 755,
-     "Total": 1716
+     "Male": 975,
+     "Female": 773,
+     "Total": 1756
     },
     {
      "Age Group": "11-15",
-     "Male": 1032,
-     "Female": 612,
-     "Total": 1647
+     "Male": 1049,
+     "Female": 619,
+     "Total": 1671
     },
     {
      "Age Group": "16-20",
-     "Male": 1520,
-     "Female": 1060,
-     "Total": 2583
+     "Male": 1540,
+     "Female": 1078,
+     "Total": 2621
     },
     {
      "Age Group": "21-25",
-     "Male": 1551,
-     "Female": 1149,
-     "Total": 2703
+     "Male": 1572,
+     "Female": 1167,
+     "Total": 2742
     },
     {
      "Age Group": "21-30",
@@ -2975,27 +2975,27 @@
     },
     {
      "Age Group": "26-30",
-     "Male": 1584,
-     "Female": 1291,
-     "Total": 2881
+     "Male": 1612,
+     "Female": 1315,
+     "Total": 2933
     },
     {
      "Age Group": "31-35",
-     "Male": 1094,
-     "Female": 962,
-     "Total": 2058
+     "Male": 1108,
+     "Female": 982,
+     "Total": 2093
     },
     {
      "Age Group": "36-40",
-     "Male": 977,
-     "Female": 768,
-     "Total": 1750
+     "Male": 999,
+     "Female": 783,
+     "Total": 1787
     },
     {
      "Age Group": "41-45",
-     "Male": 754,
-     "Female": 552,
-     "Total": 1311
+     "Male": 761,
+     "Female": 566,
+     "Total": 1332
     },
     {
      "Age Group": "42309",
@@ -3005,9 +3005,9 @@
     },
     {
      "Age Group": "46-50",
-     "Male": 557,
-     "Female": 432,
-     "Total": 991
+     "Male": 567,
+     "Female": 439,
+     "Total": 1008
     },
     {
      "Age Group": "46301",
@@ -3017,33 +3017,33 @@
     },
     {
      "Age Group": "51-55",
-     "Male": 475,
-     "Female": 323,
-     "Total": 798
+     "Male": 483,
+     "Female": 328,
+     "Total": 811
     },
     {
      "Age Group": "56-60",
-     "Male": 351,
-     "Female": 280,
-     "Total": 633
+     "Male": 360,
+     "Female": 284,
+     "Total": 646
     },
     {
      "Age Group": "61-65",
-     "Male": 241,
-     "Female": 202,
-     "Total": 443
+     "Male": 247,
+     "Female": 204,
+     "Total": 451
     },
     {
      "Age Group": "66-70",
-     "Male": 174,
-     "Female": 114,
-     "Total": 288
+     "Male": 181,
+     "Female": 116,
+     "Total": 297
     },
     {
      "Age Group": "71-75",
-     "Male": 105,
-     "Female": 55,
-     "Total": 161
+     "Male": 107,
+     "Female": 56,
+     "Total": 164
     },
     {
      "Age Group": "76-80",
@@ -3053,15 +3053,15 @@
     },
     {
      "Age Group": "80+",
-     "Male": 45,
+     "Male": 46,
      "Female": 23,
-     "Total": 68
+     "Total": 69
     },
     {
      "Age Group": "Grand Total",
-     "Male": 12554,
-     "Female": 9435,
-     "Total": 22036
+     "Male": 12769,
+     "Female": 9606,
+     "Total": 22423
     }
    ]
   },
@@ -3076,57 +3076,57 @@
    "rows": [
     {
      "Age Group": "0-5",
-     "Male": 1754,
-     "Female": 1417,
-     "Total": 3174
+     "Male": 1806,
+     "Female": 1456,
+     "Total": 3265
     },
     {
      "Age Group": "06-10",
-     "Male": 1798,
-     "Female": 1429,
-     "Total": 3230
+     "Male": 1851,
+     "Female": 1458,
+     "Total": 3312
     },
     {
      "Age Group": "11-15",
-     "Male": 2867,
-     "Female": 1563,
-     "Total": 4443
+     "Male": 2937,
+     "Female": 1596,
+     "Total": 4546
     },
     {
      "Age Group": "16-20",
-     "Male": 7407,
-     "Female": 3380,
-     "Total": 10818
+     "Male": 7578,
+     "Female": 3466,
+     "Total": 11075
     },
     {
      "Age Group": "21-25",
-     "Male": 7944,
-     "Female": 3540,
-     "Total": 11525
+     "Male": 8139,
+     "Female": 3618,
+     "Total": 11798
     },
     {
      "Age Group": "26-30",
-     "Male": 7444,
-     "Female": 3631,
-     "Total": 11105
+     "Male": 7606,
+     "Female": 3726,
+     "Total": 11362
     },
     {
      "Age Group": "31-35",
-     "Male": 4725,
-     "Female": 2971,
-     "Total": 7715
+     "Male": 4826,
+     "Female": 3045,
+     "Total": 7890
     },
     {
      "Age Group": "36-40",
-     "Male": 4134,
-     "Female": 2777,
-     "Total": 6934
+     "Male": 4223,
+     "Female": 2841,
+     "Total": 7087
     },
     {
      "Age Group": "41-45",
-     "Male": 3026,
-     "Female": 2081,
-     "Total": 5115
+     "Male": 3075,
+     "Female": 2118,
+     "Total": 5201
     },
     {
      "Age Group": "42309",
@@ -3136,9 +3136,9 @@
     },
     {
      "Age Group": "46-50",
-     "Male": 2444,
-     "Female": 1775,
-     "Total": 4226
+     "Male": 2482,
+     "Female": 1821,
+     "Total": 4310
     },
     {
      "Age Group": "46301",
@@ -3148,15 +3148,15 @@
     },
     {
      "Age Group": "51-55",
-     "Male": 1692,
-     "Female": 1076,
-     "Total": 2774
+     "Male": 1738,
+     "Female": 1112,
+     "Total": 2856
     },
     {
      "Age Group": "56-60",
-     "Male": 1484,
-     "Female": 968,
-     "Total": 2459
+     "Male": 1525,
+     "Female": 988,
+     "Total": 2520
     },
     {
      "Age Group": "6-10",
@@ -3166,39 +3166,39 @@
     },
     {
      "Age Group": "61-65",
-     "Male": 949,
-     "Female": 596,
-     "Total": 1548
+     "Male": 973,
+     "Female": 607,
+     "Total": 1583
     },
     {
      "Age Group": "66-70",
-     "Male": 597,
-     "Female": 320,
-     "Total": 919
+     "Male": 609,
+     "Female": 328,
+     "Total": 939
     },
     {
      "Age Group": "71-75",
-     "Male": 242,
-     "Female": 132,
-     "Total": 374
+     "Male": 246,
+     "Female": 136,
+     "Total": 382
     },
     {
      "Age Group": "76-80",
-     "Male": 157,
-     "Female": 96,
-     "Total": 254
+     "Male": 160,
+     "Female": 101,
+     "Total": 262
     },
     {
      "Age Group": "80+",
-     "Male": 131,
-     "Female": 62,
-     "Total": 193
+     "Male": 135,
+     "Female": 63,
+     "Total": 198
     },
     {
      "Age Group": "Grand Total",
-     "Male": 48839,
-     "Female": 27837,
-     "Total": 76873
+     "Male": 49953,
+     "Female": 28503,
+     "Total": 78653
     }
    ]
   },
@@ -3219,9 +3219,9 @@
     },
     {
      "Age Group": "0-5",
-     "Male": 2,
+     "Male": 4,
      "Female": 4,
-     "Total": 6
+     "Total": 8
     },
     {
      "Age Group": "06-10",
@@ -3263,7 +3263,7 @@
      "Age Group": "31-35",
      "Male": 2,
      "Female": 6,
-     "Total": 8
+     "Total": 9
     },
     {
      "Age Group": "36-40",
@@ -3279,9 +3279,9 @@
     },
     {
      "Age Group": "46-50",
-     "Male": 3,
+     "Male": 4,
      "Female": 8,
-     "Total": 11
+     "Total": 12
     },
     {
      "Age Group": "51-55",
@@ -3327,9 +3327,9 @@
     },
     {
      "Age Group": "Grand Total",
-     "Male": 47,
+     "Male": 50,
      "Female": 69,
-     "Total": 116
+     "Total": 120
     }
    ]
   },
