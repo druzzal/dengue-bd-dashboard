@@ -546,6 +546,19 @@
    "discharged_last24": 1830,
    "discharged_ytd": 101031,
    "cfr_pct": 0.309
+  },
+  {
+   "date": "2026-10-16",
+   "epi_week": "W41",
+   "last24_cases": 1181,
+   "last24_deaths": 4,
+   "week_cases": 11358,
+   "week_deaths": 36,
+   "ytd_cases": 108440,
+   "ytd_deaths": 335,
+   "discharged_last24": 1179,
+   "discharged_ytd": 102210,
+   "cfr_pct": 0.309
   }
  ]
 }
